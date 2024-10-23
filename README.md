@@ -21,6 +21,7 @@
    ```
 
 3. **Set up environment variables**:
+
    Create a `.env` based on the .env.example
 
 4. **Migrate your database**:
