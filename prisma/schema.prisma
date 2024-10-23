@@ -15,21 +15,39 @@ model User {
   email    String   @unique
   name     String
   accounts Account[]
+  categories Category[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Account {
   id           Int      @id @default(autoincrement())
+  name         String
+  transactions Transaction[]
   userId       Int
   user         User     @relation(fields: [userId], references: [id])
-  balance      Int
-  transactions Transaction[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Transaction {
   id          Int      @id @default(autoincrement())
-  accountId   Int
-  account     Account  @relation(fields: [accountId], references: [id])
   amount      Int
   description String
+  accountId   Int
+  account     Account  @relation(fields: [accountId], references: [id])
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Category {
+  id  Int    @id @default(autoincrement())
+  name String
+  transactions Transaction[]
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
