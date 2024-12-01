@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-export const createUser: RequestHandler = async (req, res) => {
+export const register: RequestHandler = async (req, res) => {
   const { name, email, password } = req.body;
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
@@ -24,31 +24,30 @@ export const createUser: RequestHandler = async (req, res) => {
   });
 };
 
-export const getUserById: RequestHandler = async (req, res) => {
-  const { id } = req.params;
+export const login: RequestHandler = async (req, res) => {
+  const { email, password } = req.body;
 
   const user = await prisma.user.findUnique({
     where: {
-      id: id,
+      email: email,
     },
   });
 
-  res.json(user);
-};
+  if (!user) {
+    res.status(400).json({ message: 'Invalid credentials' });
+    return;
+  }
 
-export const updateUser: RequestHandler = async (req, res) => {
-  const { id } = req.params;
-  const { name, email } = req.body;
+  const isMatch = await bcrypt.compare(password, user.password);
 
-  const user = await prisma.user.update({
-    where: {
-      id: id,
-    },
-    data: {
-      name,
-      email,
-    },
+  if (!isMatch) {
+    res.status(400).json({ message: 'Invalid credentials' });
+    return;
+  }
+
+  res.json({
+    id: user.id,
+    name: user.name,
+    email: user.email,
   });
-
-  res.json(user);
 };
