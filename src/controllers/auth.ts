@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { RequestHandler } from 'express';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
@@ -16,6 +17,10 @@ export const register: RequestHandler = async (req, res) => {
       password: hashedPassword,
     },
   });
+
+  const token = jwt.sign({ userId: user.id }, 'supersecretsecret');
+
+  res.header('Authorization', token);
 
   res.json({
     id: user.id,
@@ -44,6 +49,10 @@ export const login: RequestHandler = async (req, res) => {
     res.status(400).json({ message: 'Invalid credentials' });
     return;
   }
+
+  const token = jwt.sign({ userId: user.id }, 'supersecretsecret');
+
+  res.header('Authorization', token);
 
   res.json({
     id: user.id,
