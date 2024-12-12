@@ -1,11 +1,11 @@
 import { PrismaClient } from '@prisma/client';
-import { RequestHandler } from 'express';
+import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
-export const register: RequestHandler = async (req, res) => {
+export async function register(req: Request, res: Response) {
   const { name, email, password } = req.body;
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
@@ -27,9 +27,9 @@ export const register: RequestHandler = async (req, res) => {
     name: user.name,
     email: user.email,
   });
-};
+}
 
-export const login: RequestHandler = async (req, res) => {
+export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
 
   const user = await prisma.user.findUnique({
@@ -59,4 +59,4 @@ export const login: RequestHandler = async (req, res) => {
     name: user.name,
     email: user.email,
   });
-};
+}

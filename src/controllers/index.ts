@@ -1,5 +1,5 @@
-import { RequestHandler } from 'express';
+import { Request, Response } from 'express';
 
-export const healthCheck: RequestHandler = (req, res) => {
-  res.send('Helo World!');
-};
+export async function healthCheck(req: Request, res: Response) {
+  res.send('Hello World!');
+}

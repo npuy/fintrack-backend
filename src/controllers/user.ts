@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client';
-import { RequestHandler } from 'express';
+import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-export const createUser: RequestHandler = async (req, res) => {
+export async function createUser(req: Request, res: Response) {
   const { name, email, password } = req.body;
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
@@ -22,9 +22,9 @@ export const createUser: RequestHandler = async (req, res) => {
     name: user.name,
     email: user.email,
   });
-};
+}
 
-export const getUserById: RequestHandler = async (req, res) => {
+export async function getUserById(req: Request, res: Response) {
   const { id } = req.params;
 
   const user = await prisma.user.findUnique({
@@ -34,9 +34,9 @@ export const getUserById: RequestHandler = async (req, res) => {
   });
 
   res.json(user);
-};
+}
 
-export const updateUser: RequestHandler = async (req, res) => {
+export async function updateUser(req: Request, res: Response) {
   const { id } = req.params;
   const { name, email } = req.body;
 
@@ -51,4 +51,4 @@ export const updateUser: RequestHandler = async (req, res) => {
   });
 
   res.json(user);
-};
+}
