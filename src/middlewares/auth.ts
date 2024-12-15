@@ -15,7 +15,7 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
     console.log(userId);
     next();
   } catch (error) {
-    res.status(400).json({ message: 'Invalid token' });
+    res.status(401).json({ message: 'Access denied' });
     return;
   }
 }
