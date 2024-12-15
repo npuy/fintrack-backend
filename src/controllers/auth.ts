@@ -1,25 +1,27 @@
 import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import { createToken } from '../utils/session';
+import { CustomJwtPayload } from '../types/jwt';
+import { CreateUserInput } from '../types/user';
+import { createUserDB, validateEmailAndPassword } from '../models/user';
 
 const prisma = new PrismaClient();
 
 export async function register(req: Request, res: Response) {
   const { name, email, password } = req.body;
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
 
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-    },
-  });
+  const createUserInput: CreateUserInput = {
+    name,
+    email,
+    password,
+  };
+  const user = await createUserDB(createUserInput);
 
-  const token = jwt.sign({ userId: user.id }, 'supersecretsecret');
-
+  const payload: CustomJwtPayload = {
+    userId: user.id,
+  };
+  const token = createToken(payload);
   res.header('Authorization', token);
 
   res.json({
@@ -32,26 +34,16 @@ export async function register(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
 
-  const user = await prisma.user.findUnique({
-    where: {
-      email: email,
-    },
-  });
-
+  const user = await validateEmailAndPassword(email, password);
   if (!user) {
-    res.status(400).json({ message: 'Invalid credentials' });
+    res.status(401).json({ error: 'Invalid credentials' });
     return;
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (!isMatch) {
-    res.status(400).json({ message: 'Invalid credentials' });
-    return;
-  }
-
-  const token = jwt.sign({ userId: user.id }, 'supersecretsecret');
-
+  const payload: CustomJwtPayload = {
+    userId: user.id,
+  };
+  const token = createToken(payload);
   res.header('Authorization', token);
 
   res.json({
