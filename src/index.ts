@@ -1,14 +1,12 @@
 import express from 'express';
-import dotenv from 'dotenv';
 import indexRoutes from './routes/index';
 import authRoutes from './routes/auth';
 import accountRoutes from './routes/account';
 import cors from 'cors';
-
-dotenv.config();
+import { env } from './configs/config';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors());

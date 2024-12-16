@@ -7,7 +7,7 @@ import {
   getAccountsByUserDB,
   updateAccountDB,
 } from '../models/account';
-import { getUserIdFromRequest } from '../utils/session';
+import { getUserIdFromRequest } from '../services/session';
 
 export async function createAccount(req: Request, res: Response) {
   const { name } = req.body;

@@ -1,12 +1,8 @@
-import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
-import { createToken } from '../utils/session';
+import { createToken } from '../services/session';
 import { CustomJwtPayload } from '../types/jwt';
 import { CreateUserInput } from '../types/user';
 import { createUserDB, validateEmailAndPassword } from '../models/user';
-
-const prisma = new PrismaClient();
 
 export async function register(req: Request, res: Response) {
   const { name, email, password } = req.body;
