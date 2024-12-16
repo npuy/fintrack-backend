@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { CreateAccountInput } from '../types/account';
 import {
   createAccountDB,
@@ -8,8 +8,13 @@ import {
   updateAccountDB,
 } from '../models/account';
 import { getUserIdFromRequest } from '../services/session';
+import { ForbiddenAccessError, ValueNotFoundError } from '../configs/errors';
 
-export async function createAccount(req: Request, res: Response) {
+export async function createAccount(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const { name } = req.body;
   const userId = getUserIdFromRequest(req);
 
@@ -30,26 +35,34 @@ export async function getAccounts(req: Request, res: Response) {
   res.json(accounts);
 }
 
-export async function getAccountById(req: Request, res: Response) {
+export async function getAccountById(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const userId = getUserIdFromRequest(req);
   const accountId = req.params.id;
 
   const account = await getAccountByIdDB(accountId);
 
   if (!account) {
-    res.status(404).json({ message: 'Account not found' });
+    next(new ValueNotFoundError('Account not found'));
     return;
   }
 
   if (account.userId !== userId) {
-    res.status(403).json({ message: 'Forbidden' });
+    next(new ForbiddenAccessError('Forbidden'));
     return;
   }
 
   res.json(account);
 }
 
-export async function updateAccount(req: Request, res: Response) {
+export async function updateAccount(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const userId = getUserIdFromRequest(req);
   const accountId = req.params.id;
   const { name } = req.body;
@@ -57,12 +70,12 @@ export async function updateAccount(req: Request, res: Response) {
   const account = await getAccountByIdDB(accountId);
 
   if (!account) {
-    res.status(404).json({ message: 'Account not found' });
+    next(new ValueNotFoundError('Account not found'));
     return;
   }
 
   if (account.userId !== userId) {
-    res.status(403).json({ message: 'Forbidden' });
+    next(new ForbiddenAccessError('Forbidden'));
     return;
   }
 
@@ -71,19 +84,23 @@ export async function updateAccount(req: Request, res: Response) {
   res.json(updatedAccount);
 }
 
-export async function deleteAccount(req: Request, res: Response) {
+export async function deleteAccount(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const userId = getUserIdFromRequest(req);
   const accountId = req.params.id;
 
   const account = await getAccountByIdDB(accountId);
 
   if (!account) {
-    res.status(404).json({ message: 'Account not found' });
+    next(new ValueNotFoundError('Account not found'));
     return;
   }
 
   if (account.userId !== userId) {
-    res.status(403).json({ message: 'Forbidden' });
+    next(new ForbiddenAccessError('Forbidden'));
     return;
   }
 

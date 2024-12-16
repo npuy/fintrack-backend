@@ -1,5 +1,9 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-export async function healthCheck(req: Request, res: Response) {
+export async function healthCheck(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   res.send('Hello World!');
 }
