@@ -112,3 +112,25 @@ export async function deleteAccountDB(accountId: string): Promise<void> {
     },
   });
 }
+
+export async function getAccountByUserIdAndName(
+  userId: string,
+  name: string,
+): Promise<Account | null> {
+  const account = await prisma.account.findFirst({
+    where: {
+      userId,
+      name,
+    },
+  });
+  if (!account) {
+    return null;
+  }
+  return {
+    id: account.id,
+    name: account.name,
+    userId: account.userId,
+    createdAt: account.createdAt,
+    updatedAt: account.updatedAt,
+  };
+}

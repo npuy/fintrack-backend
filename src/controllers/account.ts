@@ -1,15 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateAccountInput } from '../types/account';
 import {
-  createAccountDB,
   deleteAccountDB,
   getAccountByIdDB,
   getAccountsByUserDB,
   getAccountsByUserWithBalanceDB,
-  updateAccountDB,
 } from '../models/account';
 import { getUserIdFromRequest } from '../services/session';
 import { ForbiddenAccessError, ValueNotFoundError } from '../configs/errors';
+import {
+  createAccountService,
+  updateAccountService,
+} from '../services/account';
 
 export async function createAccount(
   req: Request,
@@ -23,9 +25,12 @@ export async function createAccount(
     name,
     userId,
   };
-  const account = await createAccountDB(createAccountInput);
-
-  res.json(account);
+  try {
+    const account = await createAccountService(createAccountInput);
+    res.json(account);
+  } catch (error) {
+    next(error);
+  }
 }
 
 export async function getAccounts(req: Request, res: Response) {
@@ -88,9 +93,12 @@ export async function updateAccount(
     return;
   }
 
-  const updatedAccount = await updateAccountDB(accountId, name);
-
-  res.json(updatedAccount);
+  try {
+    const updatedAccount = await updateAccountService(accountId, name, userId);
+    res.json(updatedAccount);
+  } catch (error) {
+    next(error);
+  }
 }
 
 export async function deleteAccount(

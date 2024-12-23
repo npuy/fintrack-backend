@@ -3,13 +3,15 @@ import { getUserIdFromRequest } from '../services/session';
 import { ForbiddenAccessError, ValueNotFoundError } from '../configs/errors';
 import { CreateCategoryInput } from '../types/category';
 import {
-  createCategoryDB,
   deleteCategoryDB,
   getCategoriesByUserDB,
   getCategoriesByUserWithBalanceDB,
   getCategoryByIdDB,
-  updateCategoryDB,
 } from '../models/category';
+import {
+  createCategoryService,
+  updateCategoryService,
+} from '../services/category';
 
 export async function createCategory(
   req: Request,
@@ -23,9 +25,12 @@ export async function createCategory(
     name,
     userId,
   };
-  const category = await createCategoryDB(createCategoryInput);
-
-  res.json(category);
+  try {
+    const category = await createCategoryService(createCategoryInput);
+    res.json(category);
+  } catch (error) {
+    next(error);
+  }
 }
 
 export async function getCategories(req: Request, res: Response) {
@@ -88,9 +93,16 @@ export async function updateCategory(
     return;
   }
 
-  const updatedCategory = await updateCategoryDB(categoryId, name);
-
-  res.json(updatedCategory);
+  try {
+    const updatedCategory = await updateCategoryService(
+      categoryId,
+      name,
+      userId,
+    );
+    res.json(updatedCategory);
+  } catch (error) {
+    next(error);
+  }
 }
 
 export async function deleteCategory(

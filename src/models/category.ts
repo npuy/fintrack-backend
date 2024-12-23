@@ -57,11 +57,11 @@ export async function getCategoriesByUserWithBalanceDB(
     LEFT JOIN
       "Transaction" t
     ON
-      a.id = t.categoryId
+      c.id = t.categoryId
     WHERE
-      a.userId = ${userId}
+      c.userId = ${userId}
     GROUP BY
-      a.id;
+      c.id;
   `;
   return categoriesWithBalance;
 }
@@ -113,4 +113,23 @@ export async function deleteCategoryDB(categoryId: string): Promise<void> {
       id: categoryId,
     },
   });
+}
+
+export async function getCategoryByUserIdAndName(userId: string, name: string) {
+  const category = await prisma.category.findFirst({
+    where: {
+      userId,
+      name,
+    },
+  });
+  if (!category) {
+    return null;
+  }
+  return {
+    id: category.id,
+    name: category.name,
+    userId: category.userId,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+  };
 }

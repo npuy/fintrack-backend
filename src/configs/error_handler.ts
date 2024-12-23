@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import {
+  BadRequestError,
   ForbiddenAccessError,
   UnauthorizedError,
   ValueNotFoundError,
@@ -22,6 +23,10 @@ export function errorHandler(
 
     case err instanceof UnauthorizedError:
       res.status(401).send(err.message);
+      return;
+
+    case err instanceof BadRequestError:
+      res.status(400).send(err.message);
       return;
 
     default:
