@@ -7,14 +7,15 @@ import {
   updateCategory,
   getCategoriesWithBalance,
 } from '../controllers/category';
+import { verifyToken } from '../middlewares/auth';
 
 const router = Router();
 
-router.post('/', createCategory);
-router.get('/', getCategories);
-router.get('/balance', getCategoriesWithBalance);
-router.get('/:id', getCategoryById);
-router.put('/:id', updateCategory);
-router.delete('/:id', deleteCategory);
+router.post('/', verifyToken, createCategory);
+router.get('/', verifyToken, getCategories);
+router.get('/balance', verifyToken, getCategoriesWithBalance);
+router.get('/:id', verifyToken, getCategoryById);
+router.put('/:id', verifyToken, updateCategory);
+router.delete('/:id', verifyToken, deleteCategory);
 
 export default router;

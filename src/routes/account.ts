@@ -7,14 +7,15 @@ import {
   updateAccount,
   getAccountsWithBalance,
 } from '../controllers/account';
+import { verifyToken } from '../middlewares/auth';
 
 const router = Router();
 
-router.post('/', createAccount);
-router.get('/', getAccounts);
-router.get('/balance', getAccountsWithBalance);
-router.get('/:id', getAccountById);
-router.put('/:id', updateAccount);
-router.delete('/:id', deleteAccount);
+router.post('/', verifyToken, createAccount);
+router.get('/', verifyToken, getAccounts);
+router.get('/balance', verifyToken, getAccountsWithBalance);
+router.get('/:id', verifyToken, getAccountById);
+router.put('/:id', verifyToken, updateAccount);
+router.delete('/:id', verifyToken, deleteAccount);
 
 export default router;
