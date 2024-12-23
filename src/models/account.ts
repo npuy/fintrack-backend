@@ -1,4 +1,8 @@
-import { Account, CreateAccountInput } from '../types/account';
+import {
+  Account,
+  AccountWithBalance,
+  CreateAccountInput,
+} from '../types/account';
 import { prisma } from '../../prisma/client';
 
 export async function createAccountDB(
@@ -33,6 +37,31 @@ export async function getAccountsByUserDB(userId: string): Promise<Account[]> {
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
   }));
+}
+
+export async function getAccountsByUserWithBalanceDB(
+  userId: string,
+): Promise<AccountWithBalance[]> {
+  const accountsWithBalance = await prisma.$queryRaw<AccountWithBalance[]>`
+    SELECT
+      a.id,
+      a.name,
+      a.userId,
+      a.createdAt,
+      a.updatedAt,
+      CAST(COALESCE(SUM(t.amount), 0) as REAL) AS balance
+    FROM
+      Account a
+    LEFT JOIN
+      "Transaction" t
+    ON
+      a.id = t.accountId
+    WHERE
+      a.userId = ${userId}
+    GROUP BY
+      a.id;
+  `;
+  return accountsWithBalance;
 }
 
 export async function getAccountByIdDB(

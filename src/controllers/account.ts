@@ -5,6 +5,7 @@ import {
   deleteAccountDB,
   getAccountByIdDB,
   getAccountsByUserDB,
+  getAccountsByUserWithBalanceDB,
   updateAccountDB,
 } from '../models/account';
 import { getUserIdFromRequest } from '../services/session';
@@ -33,6 +34,14 @@ export async function getAccounts(req: Request, res: Response) {
   const accounts = await getAccountsByUserDB(userId);
 
   res.json(accounts);
+}
+
+export async function getAccountsWithBalance(req: Request, res: Response) {
+  const userId = getUserIdFromRequest(req);
+
+  const accountsWithBalance = await getAccountsByUserWithBalanceDB(userId);
+
+  res.json(accountsWithBalance);
 }
 
 export async function getAccountById(

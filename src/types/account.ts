@@ -10,3 +10,7 @@ export interface CreateAccountInput {
   name: string;
   userId: string;
 }
+
+export interface AccountWithBalance extends Account {
+  balance: number;
+}
