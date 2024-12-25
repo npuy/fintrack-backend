@@ -14,24 +14,24 @@ export function errorHandler(
 ) {
   switch (true) {
     case err instanceof ValueNotFoundError:
-      res.status(404).send(err.message);
+      res.status(404).send({ message: err.message });
       return;
 
     case err instanceof ForbiddenAccessError:
-      res.status(403).send(err.message);
+      res.status(403).send({ message: err.message });
       return;
 
     case err instanceof UnauthorizedError:
-      res.status(401).send(err.message);
+      res.status(401).send({ message: err.message });
       return;
 
     case err instanceof BadRequestError:
-      res.status(400).send(err.message);
+      res.status(400).send({ message: err.message });
       return;
 
     default:
       console.error(err.stack);
-      res.status(500).send('Something broke!');
+      res.status(500).send({ message: 'Something broke!' });
       return;
   }
 }
