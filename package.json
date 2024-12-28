@@ -7,11 +7,17 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "migrate": "npx prisma migrate dev",
+    "seed": "npx prisma db seed",
+    "db:init": "npm run migrate && npm run seed"
   },
   "author": "",
   "license": "ISC",
   "description": "",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^5.21.1",
     "bcrypt": "^5.1.1",
