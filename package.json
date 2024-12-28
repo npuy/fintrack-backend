@@ -8,7 +8,7 @@
     "dev": "ts-node-dev --respawn src/index.ts",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "migrate": "npx prisma migrate dev",
+    "migrate": "npx prisma migrate dev --name dev",
     "seed": "npx prisma db seed",
     "db:init": "npm run migrate && npm run seed"
   },

@@ -24,19 +24,13 @@
 
    Create a `.env` based on the .env.example
 
-4. **Migrate your database**:
+4. **Init your database**:
 
    ```sh
-   npx prisma migrate dev --name init
+   npm run db:init
    ```
 
-5. **Generate Prisma Client**:
-
-   ```sh
-   npx prisma generate
-   ```
-
-6. **Start dev**:
+5. **Start dev**:
    ```sh
    npm run dev
    ```
