@@ -3,6 +3,7 @@ import indexRoutes from './routes/index';
 import authRoutes from './routes/auth';
 import accountRoutes from './routes/account';
 import categoryRoutes from './routes/category';
+import transactionRoutes from './routes/transaction';
 import cors from 'cors';
 import { env } from './configs/config';
 import { errorHandler } from './configs/error_handler';
@@ -17,6 +18,7 @@ app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/account', accountRoutes);
 app.use('/category', categoryRoutes);
+app.use('/transaction', transactionRoutes);
 app.use(errorHandler);
 
 app.listen(port, () => {

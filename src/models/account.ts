@@ -4,6 +4,7 @@ import {
   CreateAccountInput,
 } from '../types/account';
 import { prisma } from '../../prisma/client';
+import { ForbiddenAccessError, ValueNotFoundError } from '../configs/errors';
 
 export async function createAccountDB(
   account: CreateAccountInput,
@@ -133,4 +134,19 @@ export async function getAccountByUserIdAndName(
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
   };
+}
+
+export async function validateAccountId(
+  accountId: string,
+  userId: string,
+): Promise<void> {
+  const account = await getAccountByIdDB(accountId);
+
+  if (!account) {
+    throw new ValueNotFoundError('Account not found');
+  }
+
+  if (account.userId !== userId) {
+    throw new ForbiddenAccessError('Forbidden');
+  }
 }

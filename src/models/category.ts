@@ -4,6 +4,7 @@ import {
   CreateCategoryInput,
 } from '../types/category';
 import { prisma } from '../../prisma/client';
+import { ForbiddenAccessError, ValueNotFoundError } from '../configs/errors';
 
 export async function createCategoryDB(
   category: CreateCategoryInput,
@@ -132,4 +133,16 @@ export async function getCategoryByUserIdAndName(userId: string, name: string) {
     createdAt: category.createdAt,
     updatedAt: category.updatedAt,
   };
+}
+
+export async function validateCategoryId(categoryId: string, userId: string) {
+  const category = await getCategoryByIdDB(categoryId);
+
+  if (!category) {
+    throw new ValueNotFoundError('Category not found');
+  }
+
+  if (category.userId !== userId) {
+    throw new ForbiddenAccessError('Forbidden');
+  }
 }
