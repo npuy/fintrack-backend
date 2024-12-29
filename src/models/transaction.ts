@@ -27,3 +27,77 @@ export async function createTransactionDB(
     updatedAt: transaction.updatedAt,
   };
 }
+
+export async function getTransactionsDB({
+  userId,
+  accountId,
+  categoryId,
+}: {
+  userId: string;
+  accountId?: string;
+  categoryId?: string;
+}): Promise<Transaction[]> {
+  let transactions;
+  if (!accountId && !categoryId) {
+    transactions = await prisma.transaction.findMany({
+      where: {
+        account: {
+          userId,
+        },
+      },
+    });
+  } else if (accountId && !categoryId) {
+    transactions = await prisma.transaction.findMany({
+      where: {
+        accountId,
+      },
+    });
+  } else if (!accountId && categoryId) {
+    transactions = await prisma.transaction.findMany({
+      where: {
+        categoryId,
+      },
+    });
+  } else {
+    transactions = await prisma.transaction.findMany({
+      where: {
+        accountId,
+        categoryId,
+      },
+    });
+  }
+
+  return transactions.map((transaction) => ({
+    id: transaction.id,
+    amount: transaction.amount,
+    description: transaction.description,
+    accountId: transaction.accountId,
+    categoryId: transaction.categoryId,
+    type: transaction.typeId,
+    createdAt: transaction.createdAt,
+    updatedAt: transaction.updatedAt,
+  }));
+}
+
+export async function getTransactionByIdDB(
+  transactionId: string,
+): Promise<Transaction | null> {
+  const transaction = await prisma.transaction.findFirst({
+    where: {
+      id: transactionId,
+    },
+  });
+  if (!transaction) {
+    return null;
+  }
+  return {
+    id: transaction.id,
+    amount: transaction.amount,
+    description: transaction.description,
+    accountId: transaction.accountId,
+    categoryId: transaction.categoryId,
+    type: transaction.typeId,
+    createdAt: transaction.createdAt,
+    updatedAt: transaction.updatedAt,
+  };
+}
