@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateAccountInput } from '../types/account';
 import {
-  deleteAccountDB,
   getAccountByIdDB,
   getAccountsByUserDB,
   getAccountsByUserWithBalanceDB,
 } from '../models/account';
 import { getUserIdFromRequest } from '../services/session';
-import { ForbiddenAccessError, ValueNotFoundError } from '../configs/errors';
 import {
   createAccountService,
+  deleteAccountService,
   updateAccountService,
+  validateAccountId,
 } from '../services/account';
 
 export async function createAccount(
@@ -57,18 +57,14 @@ export async function getAccountById(
   const userId = getUserIdFromRequest(req);
   const accountId = req.params.id;
 
+  try {
+    await validateAccountId(accountId, userId);
+  } catch (error) {
+    next(error);
+    return;
+  }
+
   const account = await getAccountByIdDB(accountId);
-
-  if (!account) {
-    next(new ValueNotFoundError('Account not found'));
-    return;
-  }
-
-  if (account.userId !== userId) {
-    next(new ForbiddenAccessError('Forbidden'));
-    return;
-  }
-
   res.json(account);
 }
 
@@ -81,15 +77,10 @@ export async function updateAccount(
   const accountId = req.params.id;
   const { name } = req.body;
 
-  const account = await getAccountByIdDB(accountId);
-
-  if (!account) {
-    next(new ValueNotFoundError('Account not found'));
-    return;
-  }
-
-  if (account.userId !== userId) {
-    next(new ForbiddenAccessError('Forbidden'));
+  try {
+    await validateAccountId(accountId, userId);
+  } catch (error) {
+    next(error);
     return;
   }
 
@@ -109,19 +100,17 @@ export async function deleteAccount(
   const userId = getUserIdFromRequest(req);
   const accountId = req.params.id;
 
-  const account = await getAccountByIdDB(accountId);
-
-  if (!account) {
-    next(new ValueNotFoundError('Account not found'));
+  try {
+    await validateAccountId(accountId, userId);
+  } catch (error) {
+    next(error);
     return;
   }
 
-  if (account.userId !== userId) {
-    next(new ForbiddenAccessError('Forbidden'));
-    return;
+  try {
+    await deleteAccountService(accountId);
+    res.json({ message: 'Account deleted' });
+  } catch (error) {
+    next(error);
   }
-
-  await deleteAccountDB(accountId);
-
-  res.json({ message: 'Account deleted' });
 }

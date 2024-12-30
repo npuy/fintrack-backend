@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { getUserIdFromRequest } from '../services/session';
-import { ForbiddenAccessError, ValueNotFoundError } from '../configs/errors';
 import { CreateCategoryInput } from '../types/category';
 import {
-  deleteCategoryDB,
   getCategoriesByUserDB,
   getCategoriesByUserWithBalanceDB,
   getCategoryByIdDB,
 } from '../models/category';
 import {
   createCategoryService,
+  deleteCategoryService,
   updateCategoryService,
+  validateCategoryId,
 } from '../services/category';
 
 export async function createCategory(
@@ -57,17 +57,13 @@ export async function getCategoryById(
   const userId = getUserIdFromRequest(req);
   const categoryId = req.params.id;
 
+  try {
+    await validateCategoryId(categoryId, userId);
+  } catch (error) {
+    next(error);
+  }
+
   const category = await getCategoryByIdDB(categoryId);
-
-  if (!category) {
-    next(new ValueNotFoundError('Category not found'));
-    return;
-  }
-
-  if (category.userId !== userId) {
-    next(new ForbiddenAccessError('Forbidden'));
-    return;
-  }
 
   res.json(category);
 }
@@ -81,16 +77,10 @@ export async function updateCategory(
   const categoryId = req.params.id;
   const { name } = req.body;
 
-  const category = await getCategoryByIdDB(categoryId);
-
-  if (!category) {
-    next(new ValueNotFoundError('Category not found'));
-    return;
-  }
-
-  if (category.userId !== userId) {
-    next(new ForbiddenAccessError('Forbidden'));
-    return;
+  try {
+    await validateCategoryId(categoryId, userId);
+  } catch (error) {
+    next(error);
   }
 
   try {
@@ -113,19 +103,16 @@ export async function deleteCategory(
   const userId = getUserIdFromRequest(req);
   const categoryId = req.params.id;
 
-  const category = await getCategoryByIdDB(categoryId);
-
-  if (!category) {
-    next(new ValueNotFoundError('Category not found'));
-    return;
+  try {
+    await validateCategoryId(categoryId, userId);
+  } catch (error) {
+    next(error);
   }
 
-  if (category.userId !== userId) {
-    next(new ForbiddenAccessError('Forbidden'));
-    return;
+  try {
+    await deleteCategoryService(categoryId);
+    res.json({ message: 'Category deleted' });
+  } catch (error) {
+    next(error);
   }
-
-  await deleteCategoryDB(categoryId);
-
-  res.json({ message: 'Category deleted' });
 }

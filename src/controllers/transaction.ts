@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { getUserIdFromRequest } from '../services/session';
-import { validateAccountId } from '../models/account';
-import { validateCategoryId } from '../models/category';
 import {
   createTransactionService,
   getTransactionByIdService,
@@ -10,6 +8,8 @@ import {
 } from '../services/transaction';
 import { CreateTransactionInput, TransactionType } from '../types/transaction';
 import { deleteTransactionDB, getTransactionsDB } from '../models/transaction';
+import { validateAccountId } from '../services/account';
+import { validateCategoryId } from '../services/category';
 
 export async function createTransaction(
   req: Request,

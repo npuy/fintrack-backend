@@ -33,7 +33,7 @@ export async function getTransactionsDB({
   accountId,
   categoryId,
 }: {
-  userId: string;
+  userId?: string;
   accountId?: string;
   categoryId?: string;
 }): Promise<Transaction[]> {
