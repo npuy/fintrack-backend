@@ -4,12 +4,13 @@ import { CreateTransactionInput, Transaction } from '../types/transaction';
 export async function createTransactionDB(
   createTransactionInput: CreateTransactionInput,
 ): Promise<Transaction> {
-  const { amount, description, accountId, categoryId, type } =
+  const { amount, description, date, accountId, categoryId, type } =
     createTransactionInput;
   const transaction = await prisma.transaction.create({
     data: {
       amount,
       description,
+      date,
       accountId,
       categoryId,
       typeId: type,
@@ -20,6 +21,7 @@ export async function createTransactionDB(
     id: transaction.id,
     amount: transaction.amount,
     description: transaction.description,
+    date: transaction.date,
     accountId: transaction.accountId,
     categoryId: transaction.categoryId,
     type: transaction.typeId,
@@ -71,6 +73,7 @@ export async function getTransactionsDB({
     id: transaction.id,
     amount: transaction.amount,
     description: transaction.description,
+    date: transaction.date,
     accountId: transaction.accountId,
     categoryId: transaction.categoryId,
     type: transaction.typeId,
@@ -94,6 +97,7 @@ export async function getTransactionByIdDB(
     id: transaction.id,
     amount: transaction.amount,
     description: transaction.description,
+    date: transaction.date,
     accountId: transaction.accountId,
     categoryId: transaction.categoryId,
     type: transaction.typeId,
@@ -127,6 +131,7 @@ export async function updateTransactionDB(
     id: transaction.id,
     amount: transaction.amount,
     description: transaction.description,
+    date: transaction.date,
     accountId: transaction.accountId,
     categoryId: transaction.categoryId,
     type: transaction.typeId,

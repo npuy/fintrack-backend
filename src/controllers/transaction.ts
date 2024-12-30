@@ -20,16 +20,20 @@ export async function createTransaction(
   const {
     amount,
     description,
+    date,
     accountId,
     categoryId,
     type,
   }: {
     amount: number;
     description: string;
+    date: string;
     accountId: string;
     categoryId: string;
     type: number;
   } = req.body;
+
+  const dateObj = new Date(date);
 
   try {
     await validateAccountId(accountId, userId);
@@ -49,6 +53,7 @@ export async function createTransaction(
     const createTransactionInput: CreateTransactionInput = {
       amount,
       description,
+      date: dateObj,
       accountId,
       categoryId,
       type: type as TransactionType,
@@ -147,16 +152,20 @@ export async function updateTransaction(
   const {
     amount,
     description,
+    date,
     accountId,
     categoryId,
     type,
   }: {
     amount: number;
     description: string;
+    date: string;
     accountId: string;
     categoryId: string;
     type: number;
   } = req.body;
+
+  const dateObj = new Date(date);
 
   try {
     await validateTransactionId(transactionId, userId);
@@ -184,6 +193,7 @@ export async function updateTransaction(
       id: transactionId,
       amount,
       description,
+      date: dateObj,
       accountId,
       categoryId,
       type: type as TransactionType,

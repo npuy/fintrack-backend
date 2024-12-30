@@ -37,6 +37,7 @@ model Transaction {
   id          String      @id @default(uuid())
   amount      Int
   description String
+  date        DateTime
   typeId      Int
   type        TransactionType @relation(fields: [typeId], references: [id])
   accountId   String

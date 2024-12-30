@@ -9,6 +9,7 @@ export interface Transaction {
   id: string;
   amount: number;
   description: string;
+  date: Date;
   accountId: string;
   categoryId: string;
   type: TransactionType;
@@ -20,6 +21,7 @@ export interface CreateTransactionInput {
   id?: string;
   amount: number;
   description: string;
+  date: Date;
   accountId: string;
   categoryId: string;
   type: TransactionType;
