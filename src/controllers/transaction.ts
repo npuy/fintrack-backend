@@ -5,9 +5,11 @@ import { validateCategoryId } from '../models/category';
 import {
   createTransactionService,
   getTransactionByIdService,
+  updateTransactionService,
+  validateTransactionId,
 } from '../services/transaction';
 import { CreateTransactionInput, TransactionType } from '../types/transaction';
-import { getTransactionsDB } from '../models/transaction';
+import { deleteTransactionDB, getTransactionsDB } from '../models/transaction';
 
 export async function createTransaction(
   req: Request,
@@ -130,6 +132,87 @@ export async function getTransactionsByCategory(
   try {
     const transactions = await getTransactionsDB({ userId, categoryId });
     res.json(transactions);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateTransaction(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const userId = getUserIdFromRequest(req);
+  const transactionId = req.params.transactionId;
+  const {
+    amount,
+    description,
+    accountId,
+    categoryId,
+    type,
+  }: {
+    amount: number;
+    description: string;
+    accountId: string;
+    categoryId: string;
+    type: number;
+  } = req.body;
+
+  try {
+    await validateTransactionId(transactionId, userId);
+  } catch (error) {
+    next(error);
+    return;
+  }
+
+  try {
+    await validateAccountId(accountId, userId);
+  } catch (error) {
+    next(error);
+    return;
+  }
+
+  try {
+    await validateCategoryId(categoryId, userId);
+  } catch (error) {
+    next(error);
+    return;
+  }
+
+  try {
+    const createTransactionInput: CreateTransactionInput = {
+      id: transactionId,
+      amount,
+      description,
+      accountId,
+      categoryId,
+      type: type as TransactionType,
+    };
+    const transaction = await updateTransactionService(createTransactionInput);
+    res.json(transaction);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteTransaction(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const userId = getUserIdFromRequest(req);
+  const transactionId = req.params.transactionId;
+
+  try {
+    await validateTransactionId(transactionId, userId);
+  } catch (error) {
+    next(error);
+    return;
+  }
+
+  try {
+    await deleteTransactionDB(transactionId);
+    res.json({ message: 'Transaction deleted successfully' });
   } catch (error) {
     next(error);
   }

@@ -17,6 +17,7 @@ export interface Transaction {
 }
 
 export interface CreateTransactionInput {
+  id?: string;
   amount: number;
   description: string;
   accountId: string;

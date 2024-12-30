@@ -101,3 +101,44 @@ export async function getTransactionByIdDB(
     updatedAt: transaction.updatedAt,
   };
 }
+
+export async function updateTransactionDB(
+  updateTransactionInput: CreateTransactionInput,
+): Promise<Transaction> {
+  const { id, amount, description, accountId, categoryId, type } =
+    updateTransactionInput;
+  if (!id) {
+    throw new Error('Transaction ID is required');
+  }
+  const transaction = await prisma.transaction.update({
+    where: {
+      id,
+    },
+    data: {
+      amount,
+      description,
+      accountId,
+      categoryId,
+      typeId: type,
+    },
+  });
+
+  return {
+    id: transaction.id,
+    amount: transaction.amount,
+    description: transaction.description,
+    accountId: transaction.accountId,
+    categoryId: transaction.categoryId,
+    type: transaction.typeId,
+    createdAt: transaction.createdAt,
+    updatedAt: transaction.updatedAt,
+  };
+}
+
+export async function deleteTransactionDB(transactionId: string) {
+  await prisma.transaction.delete({
+    where: {
+      id: transactionId,
+    },
+  });
+}
