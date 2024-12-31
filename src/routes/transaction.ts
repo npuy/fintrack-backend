@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   createTransaction,
+  deleteTransaction,
   getTransactionById,
   getTransactions,
   getTransactionsByAccount,
@@ -17,5 +18,6 @@ router.get('/acc/:accountId', verifyToken, getTransactionsByAccount);
 router.get('/cat/:categoryId', verifyToken, getTransactionsByCategory);
 router.get('/:transactionId', verifyToken, getTransactionById);
 router.put('/:transactionId', verifyToken, updateTransaction);
+router.delete('/:transactionId', verifyToken, deleteTransaction);
 
 export default router;
