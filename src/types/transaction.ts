@@ -1,3 +1,6 @@
+import { Account } from './account';
+import { Category } from './category';
+
 export enum TransactionType {
   Income = 1,
   Expense,
@@ -25,4 +28,9 @@ export interface CreateTransactionInput {
   accountId: string;
   categoryId: string;
   type: TransactionType;
+}
+
+export interface TransactionFull extends Transaction {
+  account: Account;
+  category: Category;
 }

@@ -6,6 +6,7 @@ import {
   getTransactions,
   getTransactionsByAccount,
   getTransactionsByCategory,
+  getTransactionsFull,
   updateTransaction,
 } from '../controllers/transaction';
 import { verifyToken } from '../middlewares/auth';
@@ -14,6 +15,7 @@ const router = Router();
 
 router.post('/', verifyToken, createTransaction);
 router.get('/', verifyToken, getTransactions);
+router.get('/full', verifyToken, getTransactionsFull);
 router.get('/acc/:accountId', verifyToken, getTransactionsByAccount);
 router.get('/cat/:categoryId', verifyToken, getTransactionsByCategory);
 router.get('/:transactionId', verifyToken, getTransactionById);

@@ -1,5 +1,9 @@
 import { prisma } from '../../prisma/client';
-import { CreateTransactionInput, Transaction } from '../types/transaction';
+import {
+  CreateTransactionInput,
+  Transaction,
+  TransactionFull,
+} from '../types/transaction';
 
 export async function createTransactionDB(
   createTransactionInput: CreateTransactionInput,
@@ -79,6 +83,50 @@ export async function getTransactionsDB({
     type: transaction.typeId,
     createdAt: transaction.createdAt,
     updatedAt: transaction.updatedAt,
+  }));
+}
+
+export async function getTransactionsFullDB({
+  userId,
+}: {
+  userId: string;
+}): Promise<TransactionFull[]> {
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      account: {
+        userId,
+      },
+    },
+    include: {
+      account: true,
+      category: true,
+    },
+  });
+
+  return transactions.map((transaction) => ({
+    id: transaction.id,
+    amount: transaction.amount,
+    description: transaction.description,
+    date: transaction.date,
+    accountId: transaction.accountId,
+    categoryId: transaction.categoryId,
+    type: transaction.typeId,
+    createdAt: transaction.createdAt,
+    updatedAt: transaction.updatedAt,
+    account: {
+      id: transaction.account.id,
+      name: transaction.account.name,
+      userId: transaction.account.userId,
+      createdAt: transaction.account.createdAt,
+      updatedAt: transaction.account.updatedAt,
+    },
+    category: {
+      id: transaction.category.id,
+      name: transaction.category.name,
+      userId: transaction.category.userId,
+      createdAt: transaction.category.createdAt,
+      updatedAt: transaction.category.updatedAt,
+    },
   }));
 }
 

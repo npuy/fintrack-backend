@@ -7,7 +7,11 @@ import {
   validateTransactionId,
 } from '../services/transaction';
 import { CreateTransactionInput, TransactionType } from '../types/transaction';
-import { deleteTransactionDB, getTransactionsDB } from '../models/transaction';
+import {
+  deleteTransactionDB,
+  getTransactionsDB,
+  getTransactionsFullDB,
+} from '../models/transaction';
 import { validateAccountId } from '../services/account';
 import { validateCategoryId } from '../services/category';
 
@@ -74,6 +78,21 @@ export async function getTransactions(
 
   try {
     const transactions = await getTransactionsDB({ userId });
+    res.json(transactions);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getTransactionsFull(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const userId = getUserIdFromRequest(req);
+
+  try {
+    const transactions = await getTransactionsFullDB({ userId });
     res.json(transactions);
   } catch (error) {
     next(error);
