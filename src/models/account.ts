@@ -49,7 +49,13 @@ export async function getAccountsByUserWithBalanceDB(
       a.userId,
       a.createdAt,
       a.updatedAt,
-      CAST(COALESCE(SUM(t.amount), 0) as REAL) AS balance
+      CAST(COALESCE(SUM(
+        CASE
+          WHEN t.typeId = 1 THEN t.amount
+          WHEN t.typeId = 2 THEN -t.amount
+          ELSE 0
+        END
+      ), 0) as REAL) AS balance
     FROM
       Account a
     LEFT JOIN
