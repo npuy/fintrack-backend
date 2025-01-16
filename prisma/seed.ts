@@ -12,8 +12,6 @@ async function main() {
       data: [
         { id: 1, name: 'Income' },
         { id: 2, name: 'Expense' },
-        { id: 3, name: 'Transfer' },
-        { id: 4, name: 'Tax Refund' },
       ],
     });
     console.log('Transaction types seeded.');

@@ -51,8 +51,6 @@ model Transaction {
 // Transaction Type
 // 1 - Income
 // 2 - Expense
-// 3 - Transfer
-// 4 - Tax Refund 
 model TransactionType {
   id  Int    @id
   name String
