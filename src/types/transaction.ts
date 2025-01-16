@@ -4,8 +4,6 @@ import { Category } from './category';
 export enum TransactionType {
   Income = 1,
   Expense,
-  Transfer,
-  TaxRefund,
 }
 
 export interface Transaction {
