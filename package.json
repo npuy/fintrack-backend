@@ -10,7 +10,8 @@
     "format": "prettier --write .",
     "migrate": "npx prisma migrate dev --name dev",
     "seed": "npx prisma db seed",
-    "db:init": "npm run migrate && npm run seed"
+    "db:init": "npm run migrate && npm run seed",
+    "swagger": "node ./swagger.ts"
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +25,7 @@
     "cors": "2.8.5",
     "express": "4.21.1",
     "jsonwebtoken": "9.0.2",
+    "swagger-ui-express": "^5.0.1",
     "zod": "3.24.1"
   },
   "prettier": {
@@ -38,12 +40,14 @@
     "@types/dotenv": "6.1.1",
     "@types/express": "5.0.0",
     "@types/jsonwebtoken": "9.0.7",
+    "@types/swagger-ui-express": "^4.1.7",
     "@typescript-eslint/eslint-plugin": "8.11.0",
     "@typescript-eslint/parser": "8.11.0",
     "eslint": "9.13.0",
     "globals": "15.11.0",
     "prettier": "3.3.3",
     "prisma": "5.21.1",
+    "swagger-autogen": "^2.23.7",
     "ts-node-dev": "2.0.0",
     "typescript-eslint": "8.11.0"
   }
