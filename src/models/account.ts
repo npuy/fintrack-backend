@@ -13,10 +13,15 @@ export async function createAccountDB(
       name: account.name,
       userId: account.userId,
     },
+    include: {
+      currency: true,
+    },
   });
   const res: Account = {
     id: newAccount.id,
     name: newAccount.name,
+    currencyId: newAccount.currencyId,
+    currency: newAccount.currency,
     userId: newAccount.userId,
     createdAt: newAccount.createdAt,
     updatedAt: newAccount.updatedAt,
@@ -29,10 +34,15 @@ export async function getAccountsByUserDB(userId: string): Promise<Account[]> {
     where: {
       userId,
     },
+    include: {
+      currency: true,
+    },
   });
   return accounts.map((account) => ({
     id: account.id,
     name: account.name,
+    currencyId: account.currencyId,
+    currency: account.currency,
     userId: account.userId,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
@@ -42,13 +52,34 @@ export async function getAccountsByUserDB(userId: string): Promise<Account[]> {
 export async function getAccountsByUserWithBalanceDB(
   userId: string,
 ): Promise<AccountWithBalance[]> {
-  const accountsWithBalance = await prisma.$queryRaw<AccountWithBalance[]>`
+  const accountsWithBalance = await prisma.$queryRaw<
+    {
+      id: string;
+      name: string;
+      currencyId: number;
+      userId: string;
+      createdAt: Date;
+      updatedAt: Date;
+      balance: number;
+      currencyName: string;
+      currencySymbol: string;
+      currencyMultiplier: number;
+      currencyCreatedAt: Date;
+      currencyUpdatedAt: Date;
+    }[]
+  >`
     SELECT
       a.id,
       a.name,
+      a.currencyId,
       a.userId,
       a.createdAt,
       a.updatedAt,
+      ac.name as currencyName,
+      ac.symbol as currencySymbol,
+      ac.multiplier as currencyMultiplier,
+      ac.createdAt as currencyCreatedAt,
+      ac.updatedAt as currencyUpdatedAt,
       CAST(COALESCE(SUM(
         CASE
           WHEN t.typeId = 1 THEN t.amount
@@ -62,12 +93,32 @@ export async function getAccountsByUserWithBalanceDB(
       "Transaction" t
     ON
       a.id = t.accountId
+    LEFT JOIN
+      "AccountCurrency" ac
+    ON
+      a.currencyId = ac.id
     WHERE
       a.userId = ${userId}
     GROUP BY
       a.id;
   `;
-  return accountsWithBalance;
+  return accountsWithBalance.map((account) => ({
+    id: account.id,
+    name: account.name,
+    currencyId: account.currencyId,
+    userId: account.userId,
+    createdAt: account.createdAt,
+    updatedAt: account.updatedAt,
+    balance: account.balance,
+    currency: {
+      id: account.currencyId,
+      name: account.currencyName,
+      symbol: account.currencySymbol,
+      multiplier: account.currencyMultiplier,
+      createdAt: account.currencyCreatedAt,
+      updatedAt: account.currencyUpdatedAt,
+    },
+  }));
 }
 
 export async function getAccountByIdDB(
@@ -77,6 +128,9 @@ export async function getAccountByIdDB(
     where: {
       id: accountId,
     },
+    include: {
+      currency: true,
+    },
   });
   if (!account) {
     return null;
@@ -84,6 +138,8 @@ export async function getAccountByIdDB(
   return {
     id: account.id,
     name: account.name,
+    currencyId: account.currencyId,
+    currency: account.currency,
     userId: account.userId,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
@@ -93,6 +149,7 @@ export async function getAccountByIdDB(
 export async function updateAccountDB(
   accountId: string,
   name: string,
+  currencyId: number,
 ): Promise<Account | null> {
   const account = await prisma.account.update({
     where: {
@@ -100,11 +157,17 @@ export async function updateAccountDB(
     },
     data: {
       name,
+      currencyId,
+    },
+    include: {
+      currency: true,
     },
   });
   return {
     id: account.id,
     name: account.name,
+    currencyId: account.currencyId,
+    currency: account.currency,
     userId: account.userId,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
@@ -128,6 +191,9 @@ export async function getAccountByUserIdAndName(
       userId,
       name,
     },
+    include: {
+      currency: true,
+    },
   });
   if (!account) {
     return null;
@@ -135,6 +201,8 @@ export async function getAccountByUserIdAndName(
   return {
     id: account.id,
     name: account.name,
+    currencyId: account.currencyId,
+    currency: account.currency,
     userId: account.userId,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,

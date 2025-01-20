@@ -29,13 +29,14 @@ export async function createAccountService(
 export async function updateAccountService(
   accountId: string,
   name: string,
+  currencyId: number,
   userId: string,
 ): Promise<Account | null> {
   const accountFound = await getAccountByUserIdAndName(userId, name);
   if (accountFound && accountFound.id !== accountId) {
     throw new BadRequestError('Account name already exists');
   }
-  return await updateAccountDB(accountId, name);
+  return await updateAccountDB(accountId, name, currencyId);
 }
 
 export async function validateAccountId(
