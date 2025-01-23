@@ -12,6 +12,7 @@ export async function createAccountDB(
     data: {
       name: account.name,
       userId: account.userId,
+      currencyId: account.currencyId,
     },
     include: {
       currency: true,
