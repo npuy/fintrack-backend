@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { getCurrencies } from '../controllers/currency';
+import { getCurrencies, getCurrency } from '../controllers/currency';
 import { verifyToken } from '../middlewares/auth';
 
 const router = Router();
 
 router.get('/', verifyToken, getCurrencies);
+router.get('/:currencyId', verifyToken, getCurrency);
 
 export default router;
