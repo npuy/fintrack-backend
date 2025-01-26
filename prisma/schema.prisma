@@ -17,7 +17,7 @@ model User {
   name       String
   // Selected currency for the user
   // This is used to display the user's data in the selected currency
-  // This change the returned amount of the transactions and the categories not the account's amount
+  // This change the returned amount of the categories not the account's and transaction's amount
   currencyId Int             @default(1)
   currency   AccountCurrency @relation(fields: [currencyId], references: [id])
   accounts   Account[]
