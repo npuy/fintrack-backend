@@ -4,4 +4,6 @@ import { verifyToken } from '../middlewares/auth';
 
 const router = Router();
 
-router.put('/update', verifyToken, updateUserData);
+router.put('/', verifyToken, updateUserData);
+
+export default router;
