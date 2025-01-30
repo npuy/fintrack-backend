@@ -4,6 +4,8 @@ import {
   CreateCategoryInput,
 } from '../types/category';
 import { prisma } from '../../prisma/client';
+import { getUserByIdDB } from './user';
+import { getCurrencyByIdDB } from './currency';
 
 export async function createCategoryDB(
   category: CreateCategoryInput,
@@ -44,6 +46,15 @@ export async function getCategoriesByUserDB(
 export async function getCategoriesByUserWithBalanceDB(
   userId: string,
 ): Promise<CategoryWithBalance[]> {
+  const user = await getUserByIdDB(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  const currency = await getCurrencyByIdDB(user.currencyId);
+  if (!currency) {
+    throw new Error('Currency not found');
+  }
+
   const categoriesWithBalance = await prisma.$queryRaw<CategoryWithBalance[]>`
     SELECT
       c.id,
@@ -53,8 +64,8 @@ export async function getCategoriesByUserWithBalanceDB(
       c.updatedAt,
       CAST(COALESCE(SUM(
         CASE
-          WHEN t.typeId = 1 THEN t.amount
-          WHEN t.typeId = 2 THEN -t.amount
+          WHEN t.typeId = 1 THEN t.amount * (${currency.multiplier} / ac.multiplier)
+          WHEN t.typeId = 2 THEN -t.amount * (${currency.multiplier} / ac.multiplier)
           ELSE 0
         END
       ), 0) as REAL) AS balance
@@ -64,6 +75,14 @@ export async function getCategoriesByUserWithBalanceDB(
       "Transaction" t
     ON
       c.id = t.categoryId
+    LEFT JOIN
+      "Account" a
+    ON
+      t.accountId = a.id
+    LEFT JOIN
+      "AccountCurrency" ac
+    ON
+      a.currencyId = ac.id
     WHERE
       c.userId = ${userId}
     GROUP BY

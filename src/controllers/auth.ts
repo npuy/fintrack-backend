@@ -2,12 +2,9 @@ import { NextFunction, Request, Response } from 'express';
 import { createToken } from '../services/session';
 import { CustomJwtPayload } from '../types/jwt';
 import { CreateUserInput } from '../types/user';
-import {
-  createUserDB,
-  findUserByEmail,
-  validateEmailAndPassword,
-} from '../models/user';
+import { createUserDB, findUserByEmail } from '../models/user';
 import { UnauthorizedError } from '../configs/errors';
+import { validateEmailAndPassword } from '../services/user';
 
 export async function register(
   req: Request,
@@ -38,6 +35,7 @@ export async function register(
     id: user.id,
     name: user.name,
     email: user.email,
+    currencyId: user.currencyId,
   });
 }
 
@@ -60,5 +58,6 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     id: user.id,
     name: user.name,
     email: user.email,
+    currencyId: user.currencyId,
   });
 }

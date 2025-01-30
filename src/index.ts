@@ -4,21 +4,24 @@ import authRoutes from './routes/auth';
 import accountRoutes from './routes/account';
 import categoryRoutes from './routes/category';
 import transactionRoutes from './routes/transaction';
-import cors from 'cors';
+import currencyRoutes from './routes/currency';
+import userRoutes from './routes/user';
 import { env } from './configs/config';
 import { errorHandler } from './configs/error_handler';
+import { preRoutesMiddleware } from './middlewares';
 
 const app = express();
 const port = env.PORT || 3000;
 
-app.use(express.json());
-app.use(cors());
+preRoutesMiddleware(app);
 
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/account', accountRoutes);
 app.use('/category', categoryRoutes);
 app.use('/transaction', transactionRoutes);
+app.use('/currency', currencyRoutes);
+app.use('/user', userRoutes);
 app.use(errorHandler);
 
 app.listen(port, () => {
