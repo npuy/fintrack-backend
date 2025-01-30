@@ -98,7 +98,11 @@ export async function getTransactionsFullDB({
       },
     },
     include: {
-      account: true,
+      account: {
+        include: {
+          currency: true,
+        },
+      },
       category: true,
     },
   });
@@ -116,6 +120,8 @@ export async function getTransactionsFullDB({
     account: {
       id: transaction.account.id,
       name: transaction.account.name,
+      currencyId: transaction.account.currencyId,
+      currency: transaction.account.currency,
       userId: transaction.account.userId,
       createdAt: transaction.account.createdAt,
       updatedAt: transaction.account.updatedAt,

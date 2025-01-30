@@ -18,11 +18,12 @@ export async function createAccount(
   res: Response,
   next: NextFunction,
 ) {
-  const { name } = req.body;
+  const { name, currencyId } = req.body;
   const userId = getUserIdFromRequest(req);
 
   const createAccountInput: CreateAccountInput = {
     name,
+    currencyId,
     userId,
   };
   try {
@@ -75,7 +76,7 @@ export async function updateAccount(
 ) {
   const userId = getUserIdFromRequest(req);
   const accountId = req.params.id;
-  const { name } = req.body;
+  const { name, currencyId } = req.body;
 
   try {
     await validateAccountId(accountId, userId);
@@ -85,7 +86,12 @@ export async function updateAccount(
   }
 
   try {
-    const updatedAccount = await updateAccountService(accountId, name, userId);
+    const updatedAccount = await updateAccountService(
+      accountId,
+      name,
+      currencyId,
+      userId,
+    );
     res.json(updatedAccount);
   } catch (error) {
     next(error);
