@@ -6,7 +6,11 @@ import {
   updateTransactionService,
   validateTransactionId,
 } from '../services/transaction';
-import { CreateTransactionInput, TransactionType } from '../types/transaction';
+import {
+  CreateTransactionInput,
+  FilterTransactionsInput,
+  TransactionType,
+} from '../types/transaction';
 import {
   deleteTransactionDB,
   getTransactionsDB,
@@ -90,9 +94,11 @@ export async function getTransactionsFull(
   next: NextFunction,
 ) {
   const userId = getUserIdFromRequest(req);
+  console.log(req.query);
+  const filters = req.query as FilterTransactionsInput;
 
   try {
-    const transactions = await getTransactionsFullDB({ userId });
+    const transactions = await getTransactionsFullDB({ userId, filters });
     res.json(transactions);
   } catch (error) {
     next(error);

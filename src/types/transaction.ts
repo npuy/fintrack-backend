@@ -18,6 +18,14 @@ export interface Transaction {
   updatedAt: Date;
 }
 
+export interface FilterTransactionsInput {
+  startDate?: Date;
+  endDate?: Date;
+  type?: TransactionType;
+  accountId?: string;
+  categoryId?: string;
+}
+
 export interface CreateTransactionInput {
   id?: string;
   amount: number;

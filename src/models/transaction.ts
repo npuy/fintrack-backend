@@ -1,6 +1,7 @@
 import { prisma } from '../../prisma/client';
 import {
   CreateTransactionInput,
+  FilterTransactionsInput,
   Transaction,
   TransactionFull,
 } from '../types/transaction';
@@ -88,11 +89,20 @@ export async function getTransactionsDB({
 
 export async function getTransactionsFullDB({
   userId,
+  filters,
 }: {
   userId: string;
+  filters: FilterTransactionsInput;
 }): Promise<TransactionFull[]> {
   const transactions = await prisma.transaction.findMany({
     where: {
+      date: {
+        gte: new Date(filters.startDate ? filters.startDate : '1970-01-01'),
+        lte: new Date(filters.endDate ? filters.endDate : '2100-01-01'),
+      },
+      typeId: filters.type,
+      accountId: filters.accountId,
+      categoryId: filters.categoryId,
       account: {
         userId,
       },

@@ -21,3 +21,13 @@ export const updateTransactionBodySchema = z
     type: z.number(),
   })
   .strict();
+
+export const getTransactionQuerySchema = z
+  .object({
+    startDate: z.string().date().optional(),
+    endDate: z.string().date().optional(),
+    type: z.number().optional(),
+    accountId: z.string().optional(),
+    categoryId: z.string().optional(),
+  })
+  .strict();

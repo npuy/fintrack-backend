@@ -10,9 +10,10 @@ import {
   updateTransaction,
 } from '../controllers/transaction';
 import { verifyToken } from '../middlewares/auth';
-import { validateBody } from '../middlewares/validate';
+import { validateBody, validateQuery } from '../middlewares/validate';
 import {
   createTransactionBodySchema,
+  getTransactionQuerySchema,
   updateTransactionBodySchema,
 } from '../middlewares/validation_schemas/transaction';
 
@@ -25,7 +26,12 @@ router.post(
   createTransaction,
 );
 router.get('/', verifyToken, getTransactions);
-router.get('/full', verifyToken, getTransactionsFull);
+router.get(
+  '/full',
+  verifyToken,
+  validateQuery(getTransactionQuerySchema),
+  getTransactionsFull,
+);
 router.get('/acc/:accountId', verifyToken, getTransactionsByAccount);
 router.get('/cat/:categoryId', verifyToken, getTransactionsByCategory);
 router.get('/:transactionId', verifyToken, getTransactionById);
