@@ -5,7 +5,14 @@ import {
   getTransactionByIdDB,
   updateTransactionDB,
 } from '../models/transaction';
-import { CreateTransactionInput } from '../types/transaction';
+import {
+  CreateTransactionInput,
+  FilterTransactionsInput,
+  OrderByDirections,
+  OrderByFields,
+  OrderByItem,
+} from '../types/transaction';
+import { ParsedQs } from 'qs';
 
 export async function createTransactionService(
   createTransactionInput: CreateTransactionInput,
@@ -65,4 +72,30 @@ export async function validateTransactionId(
   if (account.userId !== userId) {
     throw new ForbiddenAccessError('Forbidden');
   }
+}
+
+export function formatGetTransactionsFilters(
+  query: ParsedQs,
+): FilterTransactionsInput {
+  const { startDate, endDate, type, accountId, categoryId, orderBy } = query;
+  return {
+    startDate: startDate ? new Date(startDate as string) : undefined,
+    endDate: endDate ? new Date(endDate as string) : undefined,
+    type: type ? Number(type as string) : undefined,
+    accountId: accountId ? (accountId as string) : undefined,
+    categoryId: categoryId ? (categoryId as string) : undefined,
+    orderBy: orderBy
+      ? String(orderBy)
+          .split(',')
+          .map((clause) => {
+            const [field, direction] = clause.split(':');
+            return { field, direction } as OrderByItem;
+          })
+      : [
+          {
+            field: OrderByFields.Date,
+            direction: OrderByDirections.Desc,
+          },
+        ],
+  };
 }

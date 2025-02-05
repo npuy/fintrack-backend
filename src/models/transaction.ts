@@ -107,6 +107,11 @@ export async function getTransactionsFullDB({
         userId,
       },
     },
+    orderBy: filters.orderBy
+      ? filters.orderBy.map((clause) => ({
+          [clause.field]: clause.direction,
+        }))
+      : undefined,
     include: {
       account: {
         include: {

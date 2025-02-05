@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { getUserIdFromRequest } from '../services/session';
 import {
   createTransactionService,
+  formatGetTransactionsFilters,
   getTransactionByIdService,
   updateTransactionService,
   validateTransactionId,
@@ -94,8 +95,9 @@ export async function getTransactionsFull(
   next: NextFunction,
 ) {
   const userId = getUserIdFromRequest(req);
-  console.log(req.query);
-  const filters = req.query as FilterTransactionsInput;
+  const filters: FilterTransactionsInput = formatGetTransactionsFilters(
+    req.query,
+  );
 
   try {
     const transactions = await getTransactionsFullDB({ userId, filters });
