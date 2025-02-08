@@ -10,6 +10,8 @@ import {
 import {
   CreateTransactionInput,
   FilterTransactionsInput,
+  OrderByDirections,
+  OrderByFields,
   TransactionType,
 } from '../types/transaction';
 import {
@@ -95,8 +97,26 @@ export async function getTransactionsFull(
   next: NextFunction,
 ) {
   const userId = getUserIdFromRequest(req);
+  const defaultFilters: FilterTransactionsInput = {
+    startDate: new Date(new Date().setHours(23, 59, 59, 999)), // Today at 23:59:59
+    endDate: new Date(
+      new Date().setHours(0, 0, 0, 0) - 30 * 24 * 60 * 60 * 1000,
+    ), // 30 days ago at 00:00:00
+    type: undefined,
+    accountId: undefined,
+    categoryId: undefined,
+    orderBy: [
+      {
+        field: OrderByFields.Date,
+        direction: OrderByDirections.Desc,
+      },
+    ],
+    limit: 20,
+    offset: 0,
+  };
   const filters: FilterTransactionsInput = formatGetTransactionsFilters(
     req.query,
+    defaultFilters,
   );
 
   try {

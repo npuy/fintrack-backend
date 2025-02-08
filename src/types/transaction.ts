@@ -25,6 +25,8 @@ export interface FilterTransactionsInput {
   accountId?: string;
   categoryId?: string;
   orderBy?: OrderByItem[];
+  limit?: number;
+  offset?: number;
 }
 
 export interface OrderByItem {

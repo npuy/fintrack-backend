@@ -60,5 +60,17 @@ export const getTransactionQuerySchema = z
         });
       })
       .pipe(z.array(orderBySchema)),
+    limit: z
+      .string()
+      .refine((val) => !isNaN(Number(val)), {
+        message: 'String must be parseable to a valid number',
+      })
+      .optional(),
+    offset: z
+      .string()
+      .refine((val) => !isNaN(Number(val)), {
+        message: 'String must be parseable to a valid number',
+      })
+      .optional(),
   })
   .strict();

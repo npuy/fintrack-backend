@@ -95,6 +95,8 @@ export async function getTransactionsFullDB({
   filters: FilterTransactionsInput;
 }): Promise<TransactionFull[]> {
   const transactions = await prisma.transaction.findMany({
+    skip: filters.offset,
+    take: filters.limit,
     where: {
       date: {
         gte: new Date(filters.startDate ? filters.startDate : '1970-01-01'),

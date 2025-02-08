@@ -76,14 +76,26 @@ export async function validateTransactionId(
 
 export function formatGetTransactionsFilters(
   query: ParsedQs,
+  defaultFilters: FilterTransactionsInput,
 ): FilterTransactionsInput {
-  const { startDate, endDate, type, accountId, categoryId, orderBy } = query;
+  const {
+    startDate,
+    endDate,
+    type,
+    accountId,
+    categoryId,
+    orderBy,
+    limit,
+    offset,
+  } = query;
   return {
-    startDate: startDate ? new Date(startDate as string) : undefined,
-    endDate: endDate ? new Date(endDate as string) : undefined,
-    type: type ? Number(type as string) : undefined,
-    accountId: accountId ? (accountId as string) : undefined,
-    categoryId: categoryId ? (categoryId as string) : undefined,
+    startDate: startDate
+      ? new Date(startDate as string)
+      : defaultFilters.startDate,
+    endDate: endDate ? new Date(endDate as string) : defaultFilters.endDate,
+    type: type ? Number(type as string) : defaultFilters.type,
+    accountId: accountId ? (accountId as string) : defaultFilters.accountId,
+    categoryId: categoryId ? (categoryId as string) : defaultFilters.categoryId,
     orderBy: orderBy
       ? String(orderBy)
           .split(',')
@@ -91,11 +103,8 @@ export function formatGetTransactionsFilters(
             const [field, direction] = clause.split(':');
             return { field, direction } as OrderByItem;
           })
-      : [
-          {
-            field: OrderByFields.Date,
-            direction: OrderByDirections.Desc,
-          },
-        ],
+      : defaultFilters.orderBy,
+    limit: limit ? Number(limit) : defaultFilters.limit,
+    offset: offset ? Number(offset) : defaultFilters.offset,
   };
 }
