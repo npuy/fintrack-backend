@@ -16,6 +16,7 @@ import {
 } from '../types/transaction';
 import {
   deleteTransactionDB,
+  getTotalNumberTransactionsFullDB,
   getTransactionsDB,
   getTransactionsFullDB,
 } from '../models/transaction';
@@ -98,10 +99,10 @@ export async function getTransactionsFull(
 ) {
   const userId = getUserIdFromRequest(req);
   const defaultFilters: FilterTransactionsInput = {
-    startDate: new Date(new Date().setHours(23, 59, 59, 999)), // Today at 23:59:59
-    endDate: new Date(
+    startDate: new Date(
       new Date().setHours(0, 0, 0, 0) - 30 * 24 * 60 * 60 * 1000,
     ), // 30 days ago at 00:00:00
+    endDate: new Date(new Date().setHours(23, 59, 59, 999)), // Today at 23:59:59
     type: undefined,
     accountId: undefined,
     categoryId: undefined,
@@ -121,7 +122,8 @@ export async function getTransactionsFull(
 
   try {
     const transactions = await getTransactionsFullDB({ userId, filters });
-    res.json(transactions);
+    const total = await getTotalNumberTransactionsFullDB({ userId, filters });
+    res.json({ data: transactions, total });
   } catch (error) {
     next(error);
   }

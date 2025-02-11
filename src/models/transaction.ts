@@ -153,6 +153,29 @@ export async function getTransactionsFullDB({
   }));
 }
 
+export async function getTotalNumberTransactionsFullDB({
+  userId,
+  filters,
+}: {
+  userId: string;
+  filters: FilterTransactionsInput;
+}): Promise<Number> {
+  return await prisma.transaction.count({
+    where: {
+      date: {
+        gte: new Date(filters.startDate ? filters.startDate : '1970-01-01'),
+        lte: new Date(filters.endDate ? filters.endDate : '2100-01-01'),
+      },
+      typeId: filters.type,
+      accountId: filters.accountId,
+      categoryId: filters.categoryId,
+      account: {
+        userId,
+      },
+    },
+  });
+}
+
 export async function getTransactionByIdDB(
   transactionId: string,
 ): Promise<Transaction | null> {
