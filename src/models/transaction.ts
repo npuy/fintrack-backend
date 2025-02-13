@@ -1,6 +1,7 @@
 import { prisma } from '../../prisma/client';
 import {
   CreateTransactionInput,
+  FilterTransactionsInput,
   Transaction,
   TransactionFull,
 } from '../types/transaction';
@@ -88,15 +89,31 @@ export async function getTransactionsDB({
 
 export async function getTransactionsFullDB({
   userId,
+  filters,
 }: {
   userId: string;
+  filters: FilterTransactionsInput;
 }): Promise<TransactionFull[]> {
   const transactions = await prisma.transaction.findMany({
+    skip: filters.offset,
+    take: filters.limit,
     where: {
+      date: {
+        gte: new Date(filters.startDate ? filters.startDate : '1970-01-01'),
+        lte: new Date(filters.endDate ? filters.endDate : '2100-01-01'),
+      },
+      typeId: filters.type,
+      accountId: filters.accountId,
+      categoryId: filters.categoryId,
       account: {
         userId,
       },
     },
+    orderBy: filters.orderBy
+      ? filters.orderBy.map((clause) => ({
+          [clause.field]: clause.direction,
+        }))
+      : undefined,
     include: {
       account: {
         include: {
@@ -134,6 +151,29 @@ export async function getTransactionsFullDB({
       updatedAt: transaction.category.updatedAt,
     },
   }));
+}
+
+export async function getTotalNumberTransactionsFullDB({
+  userId,
+  filters,
+}: {
+  userId: string;
+  filters: FilterTransactionsInput;
+}): Promise<Number> {
+  return await prisma.transaction.count({
+    where: {
+      date: {
+        gte: new Date(filters.startDate ? filters.startDate : '1970-01-01'),
+        lte: new Date(filters.endDate ? filters.endDate : '2100-01-01'),
+      },
+      typeId: filters.type,
+      accountId: filters.accountId,
+      categoryId: filters.categoryId,
+      account: {
+        userId,
+      },
+    },
+  });
 }
 
 export async function getTransactionByIdDB(

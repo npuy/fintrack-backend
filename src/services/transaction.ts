@@ -5,7 +5,14 @@ import {
   getTransactionByIdDB,
   updateTransactionDB,
 } from '../models/transaction';
-import { CreateTransactionInput } from '../types/transaction';
+import {
+  CreateTransactionInput,
+  FilterTransactionsInput,
+  OrderByDirections,
+  OrderByFields,
+  OrderByItem,
+} from '../types/transaction';
+import { ParsedQs } from 'qs';
 
 export async function createTransactionService(
   createTransactionInput: CreateTransactionInput,
@@ -65,4 +72,39 @@ export async function validateTransactionId(
   if (account.userId !== userId) {
     throw new ForbiddenAccessError('Forbidden');
   }
+}
+
+export function formatGetTransactionsFilters(
+  query: ParsedQs,
+  defaultFilters: FilterTransactionsInput,
+): FilterTransactionsInput {
+  const {
+    startDate,
+    endDate,
+    type,
+    accountId,
+    categoryId,
+    orderBy,
+    limit,
+    offset,
+  } = query;
+  return {
+    startDate: startDate
+      ? new Date(startDate as string)
+      : defaultFilters.startDate,
+    endDate: endDate ? new Date(endDate as string) : defaultFilters.endDate,
+    type: type ? Number(type as string) : defaultFilters.type,
+    accountId: accountId ? (accountId as string) : defaultFilters.accountId,
+    categoryId: categoryId ? (categoryId as string) : defaultFilters.categoryId,
+    orderBy: orderBy
+      ? String(orderBy)
+          .split(',')
+          .map((clause) => {
+            const [field, direction] = clause.split(':');
+            return { field, direction } as OrderByItem;
+          })
+      : defaultFilters.orderBy,
+    limit: limit ? Number(limit) : defaultFilters.limit,
+    offset: offset ? Number(offset) : defaultFilters.offset,
+  };
 }

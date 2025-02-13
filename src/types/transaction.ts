@@ -18,6 +18,32 @@ export interface Transaction {
   updatedAt: Date;
 }
 
+export interface FilterTransactionsInput {
+  startDate?: Date;
+  endDate?: Date;
+  type?: TransactionType;
+  accountId?: string;
+  categoryId?: string;
+  orderBy?: OrderByItem[];
+  limit?: number;
+  offset?: number;
+}
+
+export interface OrderByItem {
+  field: OrderByFields;
+  direction: OrderByDirections;
+}
+
+export enum OrderByDirections {
+  Asc = 'asc',
+  Desc = 'desc',
+}
+
+export enum OrderByFields {
+  Date = 'date',
+  Amount = 'amount',
+}
+
 export interface CreateTransactionInput {
   id?: string;
   amount: number;
