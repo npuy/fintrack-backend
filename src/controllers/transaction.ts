@@ -2,13 +2,21 @@ import { NextFunction, Request, Response } from 'express';
 import { getUserIdFromRequest } from '../services/session';
 import {
   createTransactionService,
+  formatGetTransactionsFilters,
   getTransactionByIdService,
   updateTransactionService,
   validateTransactionId,
 } from '../services/transaction';
-import { CreateTransactionInput, TransactionType } from '../types/transaction';
+import {
+  CreateTransactionInput,
+  FilterTransactionsInput,
+  OrderByDirections,
+  OrderByFields,
+  TransactionType,
+} from '../types/transaction';
 import {
   deleteTransactionDB,
+  getTotalNumberTransactionsFullDB,
   getTransactionsDB,
   getTransactionsFullDB,
 } from '../models/transaction';
@@ -90,10 +98,32 @@ export async function getTransactionsFull(
   next: NextFunction,
 ) {
   const userId = getUserIdFromRequest(req);
+  const defaultFilters: FilterTransactionsInput = {
+    startDate: new Date(
+      new Date().setHours(0, 0, 0, 0) - 30 * 24 * 60 * 60 * 1000,
+    ), // 30 days ago at 00:00:00
+    endDate: new Date(new Date().setHours(23, 59, 59, 999)), // Today at 23:59:59
+    type: undefined,
+    accountId: undefined,
+    categoryId: undefined,
+    orderBy: [
+      {
+        field: OrderByFields.Date,
+        direction: OrderByDirections.Desc,
+      },
+    ],
+    limit: 20,
+    offset: 0,
+  };
+  const filters: FilterTransactionsInput = formatGetTransactionsFilters(
+    req.query,
+    defaultFilters,
+  );
 
   try {
-    const transactions = await getTransactionsFullDB({ userId });
-    res.json(transactions);
+    const transactions = await getTransactionsFullDB({ userId, filters });
+    const total = await getTotalNumberTransactionsFullDB({ userId, filters });
+    res.json({ data: transactions, total });
   } catch (error) {
     next(error);
   }
