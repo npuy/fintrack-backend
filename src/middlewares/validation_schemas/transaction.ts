@@ -18,6 +18,7 @@ export const createTransactionBodySchema = z
 
 export const updateTransactionBodySchema = z
   .object({
+    id: z.string().optional(),
     amount: z.number(),
     description: z.string(),
     date: z.string(),
