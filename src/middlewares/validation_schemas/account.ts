@@ -9,6 +9,7 @@ export const createAccountBodySchema = z
 
 export const updateAccountBodySchema = z
   .object({
+    id: z.string().optional(),
     name: z.string(),
     currencyId: z.number(),
   })
