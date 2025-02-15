@@ -203,7 +203,7 @@ export async function getTransactionByIdDB(
 export async function updateTransactionDB(
   updateTransactionInput: CreateTransactionInput,
 ): Promise<Transaction> {
-  const { id, amount, description, accountId, categoryId, type } =
+  const { id, amount, description, date, accountId, categoryId, type } =
     updateTransactionInput;
   if (!id) {
     throw new Error('Transaction ID is required');
@@ -215,6 +215,7 @@ export async function updateTransactionDB(
     data: {
       amount,
       description,
+      date,
       accountId,
       categoryId,
       typeId: type,
