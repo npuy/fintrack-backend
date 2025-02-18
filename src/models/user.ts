@@ -35,6 +35,7 @@ export async function updateUserDB(user: UpdateUserInput): Promise<User> {
       name: user.name,
       email: user.email,
       currencyId: user.currencyId,
+      payDay: user.payDay,
     },
   });
   const res: User = {
