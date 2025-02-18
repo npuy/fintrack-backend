@@ -1,9 +1,7 @@
 import { z } from 'zod';
 
-export const updateUserBodySchema = z
-  .object({
-    name: z.string(),
-    email: z.string().email(),
-    currencyId: z.number(),
-  })
-  .strict();
+export const updateUserBodySchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  currencyId: z.number(),
+});
