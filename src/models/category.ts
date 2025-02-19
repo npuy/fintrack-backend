@@ -43,6 +43,38 @@ export async function getCategoriesByUserDB(
   }));
 }
 
+function getLastPayDay(payDay: number): Date {
+  const today = new Date();
+  let lastPayDay = new Date(today.getFullYear(), today.getMonth(), payDay);
+
+  if (today < lastPayDay) {
+    lastPayDay.setMonth(lastPayDay.getMonth() - 1);
+  }
+
+  // Handle months with less than 31 days
+  while (lastPayDay.getDate() !== payDay) {
+    lastPayDay.setDate(lastPayDay.getDate() - 1);
+  }
+
+  return lastPayDay;
+}
+
+function getNextPayDay(payDay: number): Date {
+  const today = new Date();
+  let nextPayDay = new Date(today.getFullYear(), today.getMonth(), payDay);
+
+  if (today >= nextPayDay) {
+    nextPayDay.setMonth(nextPayDay.getMonth() + 1);
+  }
+
+  // Handle months with less than 31 days
+  while (nextPayDay.getDate() !== payDay) {
+    nextPayDay.setDate(nextPayDay.getDate() - 1);
+  }
+
+  return nextPayDay;
+}
+
 export async function getCategoriesByUserWithBalanceDB(
   userId: string,
 ): Promise<CategoryWithBalance[]> {
@@ -54,6 +86,10 @@ export async function getCategoriesByUserWithBalanceDB(
   if (!currency) {
     throw new Error('Currency not found');
   }
+
+  const payDay = user.payDay;
+  const lastPayDay = getLastPayDay(payDay);
+  const nextPayDay = getNextPayDay(payDay);
 
   const categoriesWithBalance = await prisma.$queryRaw<CategoryWithBalance[]>`
     SELECT
@@ -84,7 +120,8 @@ export async function getCategoriesByUserWithBalanceDB(
     ON
       a.currencyId = ac.id
     WHERE
-      c.userId = ${userId}
+      c.userId = ${userId} AND 
+      ((t.date >= ${lastPayDay} AND t.date < ${nextPayDay}) OR t.date IS NULL)
     GROUP BY
       c.id;
   `;
