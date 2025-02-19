@@ -1,14 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { getUserIdFromRequest } from '../services/session';
 import { CreateCategoryInput } from '../types/category';
-import {
-  getCategoriesByUserDB,
-  getCategoriesByUserWithBalanceDB,
-  getCategoryByIdDB,
-} from '../models/category';
+import { getCategoriesByUserDB, getCategoryByIdDB } from '../models/category';
 import {
   createCategoryService,
   deleteCategoryService,
+  getCategoriesByUserWithBalance,
   updateCategoryService,
   validateCategoryId,
 } from '../services/category';
@@ -43,8 +40,13 @@ export async function getCategories(req: Request, res: Response) {
 
 export async function getCategoriesWithBalance(req: Request, res: Response) {
   const userId = getUserIdFromRequest(req);
+  const { startDate, endDate } = req.query;
 
-  const categoriesWithBalance = await getCategoriesByUserWithBalanceDB(userId);
+  const categoriesWithBalance = await getCategoriesByUserWithBalance(
+    userId,
+    startDate ? new Date(startDate as string) : undefined,
+    endDate ? new Date(endDate as string) : undefined,
+  );
 
   res.json(categoriesWithBalance);
 }
