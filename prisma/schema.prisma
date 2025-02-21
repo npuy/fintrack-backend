@@ -24,6 +24,7 @@ model User {
   currency   AccountCurrency @relation(fields: [currencyId], references: [id])
   accounts   Account[]
   categories Category[]
+  budgets    BudgetGroup[]
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
 }
@@ -46,14 +47,15 @@ model Account {
 // 1 - USD
 // 2 - UYU
 model AccountCurrency {
-  id         Int       @id @default(autoincrement())
-  name       String
-  symbol     String
-  multiplier Float
-  accounts   Account[]
-  users      User[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id            Int               @id @default(autoincrement())
+  name          String
+  symbol        String
+  multiplier    Float
+  accounts      Account[]
+  users         User[]
+  budgetsGroups BudgetGroup[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 }
 
 model Transaction {
@@ -88,8 +90,24 @@ model Category {
   transactions Transaction[]
   userId       String
   user         User          @relation(fields: [userId], references: [id])
+  budgetGroups BudgetGroup[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+
+  @@unique([name, userId])
+}
+
+model BudgetGroup {
+  id         String          @id @default(uuid())
+  name       String
+  limit      Float
+  currencyId Int             @default(1)
+  currency   AccountCurrency @relation(fields: [currencyId], references: [id])
+  categories Category[]
+  userId     String
+  user       User            @relation(fields: [userId], references: [id])
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
 
   @@unique([name, userId])
 }
