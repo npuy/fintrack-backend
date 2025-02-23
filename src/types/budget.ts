@@ -18,6 +18,15 @@ export interface CreateBudgetGroupInput {
   categoriesId: string[];
 }
 
+export interface UpdateBudgetGroupInput {
+  id: string;
+  name: string;
+  limit: number;
+  userId: string;
+  currencyId: number;
+  categoriesId: string[];
+}
+
 export interface BudgetGroupWithCategories extends BudgetGroup {
   categories: Category[];
 }
