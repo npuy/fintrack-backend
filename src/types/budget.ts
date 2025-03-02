@@ -30,3 +30,8 @@ export interface UpdateBudgetGroupInput {
 export interface BudgetGroupWithCategories extends BudgetGroup {
   categories: Category[];
 }
+
+export interface BudgetGroupWithCategoriesAndAmount
+  extends BudgetGroupWithCategories {
+  amount: number;
+}

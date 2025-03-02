@@ -1,5 +1,4 @@
-import { BudgetGroup, Prisma } from '@prisma/client';
-import { BadRequestError } from '../configs/errors';
+import { BadRequestError, ValueNotFoundError } from '../configs/errors';
 import {
   createBudgetGroupDB,
   deleteBudgetGroupDB,
@@ -10,10 +9,14 @@ import {
 } from '../models/budget';
 import { getCurrencyByIdDB } from '../models/currency';
 import {
+  BudgetGroup,
   BudgetGroupWithCategories,
+  BudgetGroupWithCategoriesAndAmount,
   CreateBudgetGroupInput,
   UpdateBudgetGroupInput,
 } from '../types/budget';
+import { getCategoriesByUserWithBalance } from './category';
+import { CategoryWithBalance } from '../types/category';
 
 export async function createBudgetGroupService(
   createBudgetGroupInput: CreateBudgetGroupInput,
@@ -33,19 +36,57 @@ export async function createBudgetGroupService(
   return budgetGroup;
 }
 
+function getBudgetGroupWithAmount(
+  budgetGroup: BudgetGroupWithCategories,
+  categories: CategoryWithBalance[],
+): BudgetGroupWithCategoriesAndAmount {
+  const categoriesIdsFormGroup = new Set(
+    budgetGroup.categories.map((category) => category.id),
+  );
+
+  const amount = categories
+    .filter((category) => categoriesIdsFormGroup.has(category.id))
+    .reduce((add, category) => add + category.balance, 0);
+
+  return {
+    ...budgetGroup,
+    amount,
+  };
+}
+
 export async function getBudgetGroupsService(
   userId: string,
-): Promise<BudgetGroupWithCategories[]> {
+): Promise<BudgetGroupWithCategoriesAndAmount[]> {
   const budgetGroups = await getBudgetGroupsDB(userId);
-  return budgetGroups;
+  const categories = await getCategoriesByUserWithBalance(
+    userId,
+    undefined,
+    undefined,
+  );
+
+  const budgetGroupsWithAmount = budgetGroups.map((budgetGroup) => {
+    return getBudgetGroupWithAmount(budgetGroup, categories);
+  });
+
+  return budgetGroupsWithAmount;
 }
 
 export async function getBudgetGroupByIdService(
   userId: string,
   budgetGroupId: string,
-): Promise<BudgetGroupWithCategories | {}> {
+): Promise<BudgetGroupWithCategoriesAndAmount> {
   const budgetGroup = await getBudgetGroupByIdDB(userId, budgetGroupId);
-  return budgetGroup || {};
+
+  if (!budgetGroup) {
+    throw new ValueNotFoundError('Budget group not found');
+  }
+
+  const categories = await getCategoriesByUserWithBalance(
+    userId,
+    undefined,
+    undefined,
+  );
+  return getBudgetGroupWithAmount(budgetGroup, categories);
 }
 
 export async function updateBudgetGroupService(
