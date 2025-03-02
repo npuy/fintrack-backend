@@ -73,6 +73,8 @@ export async function getCategoriesByUserWithBalanceDB({
       "Transaction" t
     ON
       c.id = t.categoryId
+      AND t.date >= ${startDate}
+      AND t.date < ${endDate}
     LEFT JOIN
       "Account" a
     ON
@@ -82,8 +84,7 @@ export async function getCategoriesByUserWithBalanceDB({
     ON
       a.currencyId = ac.id
     WHERE
-      c.userId = ${userId} AND 
-      ((t.date >= ${startDate} AND t.date < ${endDate}) OR t.date IS NULL)
+      c.userId = ${userId}
     GROUP BY
       c.id;
   `;
