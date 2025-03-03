@@ -16,8 +16,6 @@ import {
   UpdateBudgetGroupInput,
 } from '../types/budget';
 import { getCategoriesByUserWithBalance } from './category';
-import { CategoryWithBalance } from '../types/category';
-import { Currency } from '../types/account';
 import { getUserByIdDB } from '../models/user';
 
 export async function createBudgetGroupService(
