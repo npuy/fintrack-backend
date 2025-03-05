@@ -6,6 +6,7 @@ import categoryRoutes from './routes/category';
 import transactionRoutes from './routes/transaction';
 import currencyRoutes from './routes/currency';
 import userRoutes from './routes/user';
+import budgetRoutes from './routes/budget';
 import { env } from './configs/config';
 import { errorHandler } from './configs/error_handler';
 import { preRoutesMiddleware } from './middlewares';
@@ -22,6 +23,7 @@ app.use('/category', categoryRoutes);
 app.use('/transaction', transactionRoutes);
 app.use('/currency', currencyRoutes);
 app.use('/user', userRoutes);
+app.use('/budget', budgetRoutes);
 app.use(errorHandler);
 
 app.listen(port, () => {

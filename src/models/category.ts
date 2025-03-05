@@ -1,6 +1,7 @@
 import {
   Category,
   CategoryWithBalance,
+  CategoryWithBalanceFilters,
   CreateCategoryInput,
 } from '../types/category';
 import { prisma } from '../../prisma/client';
@@ -43,17 +44,14 @@ export async function getCategoriesByUserDB(
   }));
 }
 
-export async function getCategoriesByUserWithBalanceDB(
-  userId: string,
-): Promise<CategoryWithBalance[]> {
-  const user = await getUserByIdDB(userId);
-  if (!user) {
-    throw new Error('User not found');
-  }
-  const currency = await getCurrencyByIdDB(user.currencyId);
-  if (!currency) {
-    throw new Error('Currency not found');
-  }
+export async function getCategoriesByUserWithBalanceDB({
+  userId,
+  startDate,
+  endDate,
+  currency,
+}: CategoryWithBalanceFilters): Promise<CategoryWithBalance[]> {
+  startDate.setUTCHours(0, 0, 0, 0);
+  endDate.setUTCHours(0, 0, 0, 0);
 
   const categoriesWithBalance = await prisma.$queryRaw<CategoryWithBalance[]>`
     SELECT
@@ -75,6 +73,8 @@ export async function getCategoriesByUserWithBalanceDB(
       "Transaction" t
     ON
       c.id = t.categoryId
+      AND t.date >= ${startDate}
+      AND t.date < ${endDate}
     LEFT JOIN
       "Account" a
     ON

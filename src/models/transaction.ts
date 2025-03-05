@@ -99,8 +99,16 @@ export async function getTransactionsFullDB({
     take: filters.limit,
     where: {
       date: {
-        gte: new Date(filters.startDate ? filters.startDate : '1970-01-01'),
-        lte: new Date(filters.endDate ? filters.endDate : '2100-01-01'),
+        gte: new Date(
+          filters.startDate
+            ? filters.startDate.setUTCHours(0, 0, 0, 0)
+            : '1970-01-01',
+        ),
+        lte: new Date(
+          filters.endDate
+            ? filters.endDate.setUTCHours(0, 0, 0, 0)
+            : '2100-01-01',
+        ),
       },
       typeId: filters.type,
       accountId: filters.accountId,

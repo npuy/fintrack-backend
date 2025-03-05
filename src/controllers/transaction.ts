@@ -22,6 +22,9 @@ import {
 } from '../models/transaction';
 import { validateAccountId } from '../services/account';
 import { validateCategoryId } from '../services/category';
+import { getUserByIdDB } from '../models/user';
+import { ValueNotFoundError } from '../configs/errors';
+import { getLastPayDay, getNextPayDay } from '../services/user';
 
 export async function createTransaction(
   req: Request,
@@ -98,14 +101,15 @@ export async function getTransactionsFull(
   next: NextFunction,
 ) {
   const userId = getUserIdFromRequest(req);
+  const user = await getUserByIdDB(userId);
+  if (!user) {
+    next(new ValueNotFoundError('User not found'));
+    return;
+  }
+  const payDay = user.payDay;
   const defaultFilters: FilterTransactionsInput = {
-    startDate: new Date(
-      new Date().setHours(0, 0, 0, 0) - 30 * 24 * 60 * 60 * 1000,
-    ), // 30 days ago at 00:00:00
-    endDate: new Date(new Date().setHours(23, 59, 59, 999)), // Today at 23:59:59
-    type: undefined,
-    accountId: undefined,
-    categoryId: undefined,
+    startDate: getLastPayDay(payDay),
+    endDate: getNextPayDay(payDay),
     orderBy: [
       {
         field: OrderByFields.Date,

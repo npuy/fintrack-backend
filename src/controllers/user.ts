@@ -3,7 +3,8 @@ import { getUserIdFromRequest } from '../services/session';
 import { getCurrencyByIdDB } from '../models/currency';
 import { BadRequestError } from '../configs/errors';
 import { findUserByEmail, updateUserDB } from '../models/user';
-import { UpdateUserInput } from '../types/user';
+import { UpdateUserInput, UserPublicData } from '../types/user';
+import { getUserPublicData } from '../services/user';
 
 export async function updateUserData(
   req: Request,
@@ -11,7 +12,7 @@ export async function updateUserData(
   next: NextFunction,
 ) {
   const userId = getUserIdFromRequest(req);
-  const { name, email, currencyId } = req.body;
+  const { name, email, currencyId, payDay } = req.body;
 
   const user = await findUserByEmail(email);
 
@@ -32,13 +33,9 @@ export async function updateUserData(
     name,
     email,
     currencyId,
+    payDay,
   };
   const updatedUser = await updateUserDB(updateUserData);
 
-  res.json({
-    id: updatedUser.id,
-    name: updatedUser.name,
-    email: updatedUser.email,
-    currencyId: updatedUser.currencyId,
-  });
+  res.json(getUserPublicData(updatedUser));
 }

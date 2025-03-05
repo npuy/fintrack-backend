@@ -2,6 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  payDay: number;
   currencyId: number;
   hashedPassword: string;
   createdAt: Date;
@@ -18,5 +19,14 @@ export interface UpdateUserInput {
   id: string;
   name: string;
   email: string;
+  payDay: number;
+  currencyId: number;
+}
+
+export interface UserPublicData {
+  id: string;
+  name: string;
+  email: string;
+  payDay: number;
   currencyId: number;
 }
