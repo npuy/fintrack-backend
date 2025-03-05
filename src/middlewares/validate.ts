@@ -10,6 +10,7 @@ export const validateBody = (schema: z.ZodSchema) => {
       next(new BadRequestError('Invalid request body'));
       return;
     }
+    req.body = result.data; // Replace req.body with the parsed data
 
     next(); // Proceed if validation passed
   };
@@ -23,6 +24,7 @@ export const validateQuery = (schema: z.ZodSchema) => {
       next(new BadRequestError('Invalid query parameters'));
       return;
     }
+    req.query = result.data; // Replace req.query with the parsed data
 
     next(); // Proceed if validation passed
   };

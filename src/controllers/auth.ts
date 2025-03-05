@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { createToken } from '../services/session';
 import { CustomJwtPayload } from '../types/jwt';
-import { CreateUserInput } from '../types/user';
+import { CreateUserInput, UserPublicData } from '../types/user';
 import { createUserDB, findUserByEmail } from '../models/user';
 import { UnauthorizedError } from '../configs/errors';
-import { validateEmailAndPassword } from '../services/user';
+import { getUserPublicData, validateEmailAndPassword } from '../services/user';
 
 export async function register(
   req: Request,
@@ -31,12 +31,7 @@ export async function register(
   const token = createToken(payload);
   res.header('Authorization', token);
 
-  res.json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    currencyId: user.currencyId,
-  });
+  res.json(getUserPublicData(user));
 }
 
 export async function login(req: Request, res: Response, next: NextFunction) {
@@ -54,10 +49,5 @@ export async function login(req: Request, res: Response, next: NextFunction) {
   const token = createToken(payload);
   res.header('Authorization', token);
 
-  res.json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    currencyId: user.currencyId,
-  });
+  res.json(getUserPublicData(user));
 }

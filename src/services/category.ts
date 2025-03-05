@@ -6,12 +6,20 @@ import {
 import {
   createCategoryDB,
   deleteCategoryDB,
+  getCategoriesByUserWithBalanceDB,
   getCategoryByIdDB,
   getCategoryByUserIdAndName,
   updateCategoryDB,
 } from '../models/category';
+import { getCurrencyByIdDB } from '../models/currency';
 import { getTransactionsDB } from '../models/transaction';
-import { CreateCategoryInput, Category } from '../types/category';
+import { getUserByIdDB } from '../models/user';
+import {
+  CreateCategoryInput,
+  Category,
+  CategoryWithBalance,
+} from '../types/category';
+import { getLastPayDay, getNextPayDay } from './user';
 
 export async function createCategoryService(
   createCategoryInput: CreateCategoryInput,
@@ -56,4 +64,30 @@ export async function deleteCategoryService(categoryId: string): Promise<void> {
     throw new BadRequestError('Category has transactions');
   }
   return await deleteCategoryDB(categoryId);
+}
+
+export async function getCategoriesByUserWithBalance(
+  userId: string,
+  startDate: Date | undefined,
+  endDate: Date | undefined,
+): Promise<CategoryWithBalance[]> {
+  const user = await getUserByIdDB(userId);
+  if (!user) {
+    throw new ValueNotFoundError('User not found');
+  }
+  const currency = await getCurrencyByIdDB(user.currencyId);
+  if (!currency) {
+    throw new ValueNotFoundError('Currency not found');
+  }
+
+  const payDay = user.payDay;
+  const lastPayDay = getLastPayDay(payDay);
+  const nextPayDay = getNextPayDay(payDay);
+
+  return await getCategoriesByUserWithBalanceDB({
+    userId,
+    startDate: startDate ? startDate : lastPayDay,
+    endDate: endDate ? endDate : nextPayDay,
+    currency: currency,
+  });
 }
