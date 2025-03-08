@@ -8,8 +8,6 @@ import {
 import {
   CreateTransactionInput,
   FilterTransactionsInput,
-  OrderByDirections,
-  OrderByFields,
   OrderByItem,
 } from '../types/transaction';
 import { ParsedQs } from 'qs';
@@ -96,14 +94,15 @@ export function formatGetTransactionsFilters(
     type: type ? Number(type as string) : defaultFilters.type,
     accountId: accountId ? (accountId as string) : defaultFilters.accountId,
     categoryId: categoryId ? (categoryId as string) : defaultFilters.categoryId,
-    orderBy: orderBy
-      ? String(orderBy)
-          .split(',')
-          .map((clause) => {
-            const [field, direction] = clause.split(':');
-            return { field, direction } as OrderByItem;
-          })
-      : defaultFilters.orderBy,
+    orderBy:
+      orderBy && String(orderBy) !== ''
+        ? String(orderBy)
+            .split(',')
+            .map((clause) => {
+              const [field, direction] = clause.split(':');
+              return { field, direction } as OrderByItem;
+            })
+        : defaultFilters.orderBy,
     limit: limit ? Number(limit) : defaultFilters.limit,
     offset: offset ? Number(offset) : defaultFilters.offset,
   };
