@@ -43,7 +43,7 @@ jobs:
       # 6️⃣ Sync the build and necessary files to the server
       - name: Sync build to server
         run: |
-          rsync -avz --delete ./build/ deployer@174.138.110.54:/home/deployer/fintrack-backend/build/
+          rsync -avz --delete ./dist/ deployer@174.138.110.54:/home/deployer/fintrack-backend/dist/
           rsync -avz --delete package.json package-lock.json deployer@174.138.110.54:/home/deployer/fintrack-backend/
 
       # 7️⃣ Restart the app using PM2
