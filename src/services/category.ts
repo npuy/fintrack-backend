@@ -10,10 +10,10 @@ import {
   getCategoryByIdDB,
   getCategoryByUserIdAndName,
   updateCategoryDB,
-} from '../models/category';
-import { getCurrencyByIdDB } from '../models/currency';
-import { getTransactionsDB } from '../models/transaction';
-import { getUserByIdDB } from '../models/user';
+} from '../repository/category';
+import { getCurrencyByIdDB } from '../repository/currency';
+import { getTransactionsDB } from '../repository/transaction';
+import { getUserByIdDB } from '../repository/user';
 import {
   CreateCategoryInput,
   Category,

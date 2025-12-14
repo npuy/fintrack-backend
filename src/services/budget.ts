@@ -6,8 +6,8 @@ import {
   getBudgetGroupByNameAndUserId,
   getBudgetGroupsDB,
   updateBudgetGroupDB,
-} from '../models/budget';
-import { getCurrenciesDB, getCurrencyByIdDB } from '../models/currency';
+} from '../repository/budget';
+import { getCurrenciesDB, getCurrencyByIdDB } from '../repository/currency';
 import {
   BudgetGroup,
   BudgetGroupWithCategories,
@@ -16,7 +16,7 @@ import {
   UpdateBudgetGroupInput,
 } from '../types/budget';
 import { getCategoriesByUserWithBalance } from './category';
-import { getUserByIdDB } from '../models/user';
+import { getUserByIdDB } from '../repository/user';
 
 export async function createBudgetGroupService(
   createBudgetGroupInput: CreateBudgetGroupInput,

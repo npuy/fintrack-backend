@@ -4,7 +4,7 @@ import {
   getAccountByIdDB,
   getAccountsByUserDB,
   getAccountsByUserWithBalanceDB,
-} from '../models/account';
+} from '../repository/account';
 import { getUserIdFromRequest } from '../services/session';
 import {
   createAccountService,

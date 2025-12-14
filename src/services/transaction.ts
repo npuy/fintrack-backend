@@ -1,10 +1,10 @@
 import { ForbiddenAccessError, ValueNotFoundError } from '../configs/errors';
-import { getAccountByIdDB } from '../models/account';
+import { getAccountByIdDB } from '../repository/account';
 import {
   createTransactionDB,
   getTransactionByIdDB,
   updateTransactionDB,
-} from '../models/transaction';
+} from '../repository/transaction';
 import {
   CreateTransactionInput,
   FilterTransactionsInput,

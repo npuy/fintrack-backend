@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { createToken } from '../services/session';
 import { CustomJwtPayload } from '../types/jwt';
 import { CreateUserInput } from '../types/user';
-import { createUserDB, findUserByEmail } from '../models/user';
+import { createUserDB, findUserByEmail } from '../repository/user';
 import { UnauthorizedError } from '../configs/errors';
 import { getUserPublicData, validateEmailAndPassword } from '../services/user';
 

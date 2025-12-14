@@ -19,10 +19,10 @@ import {
   getTotalNumberTransactionsFullDB,
   getTransactionsDB,
   getTransactionsFullDB,
-} from '../models/transaction';
+} from '../repository/transaction';
 import { validateAccountId } from '../services/account';
 import { validateCategoryId } from '../services/category';
-import { getUserByIdDB } from '../models/user';
+import { getUserByIdDB } from '../repository/user';
 import { ValueNotFoundError } from '../configs/errors';
 import { getLastPayDay, getNextPayDay } from '../services/user';
 

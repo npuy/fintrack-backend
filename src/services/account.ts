@@ -9,8 +9,8 @@ import {
   getAccountByIdDB,
   getAccountByUserIdAndName,
   updateAccountDB,
-} from '../models/account';
-import { getTransactionsDB } from '../models/transaction';
+} from '../repository/account';
+import { getTransactionsDB } from '../repository/transaction';
 import { CreateAccountInput, Account } from '../types/account';
 
 export async function createAccountService(

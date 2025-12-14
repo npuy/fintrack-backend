@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { getCurrenciesDB, getCurrencyByIdDB } from '../models/currency';
+import { getCurrenciesDB, getCurrencyByIdDB } from '../repository/currency';
 import { ValueNotFoundError } from '../configs/errors';
 
 export async function getCurrencies(

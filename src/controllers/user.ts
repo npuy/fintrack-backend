@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { getUserIdFromRequest } from '../services/session';
-import { getCurrencyByIdDB } from '../models/currency';
+import { getCurrencyByIdDB } from '../repository/currency';
 import { BadRequestError } from '../configs/errors';
-import { findUserByEmail, updateUserDB } from '../models/user';
+import { findUserByEmail, updateUserDB } from '../repository/user';
 import { UpdateUserInput } from '../types/user';
 import { getUserPublicData } from '../services/user';
 

@@ -1,4 +1,4 @@
-import { findUserByEmail } from '../models/user';
+import { findUserByEmail } from '../repository/user';
 import { User, UserPublicData } from '../types/user';
 import bcrypt from 'bcrypt';
 

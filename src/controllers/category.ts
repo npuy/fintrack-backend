@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { getUserIdFromRequest } from '../services/session';
 import { CreateCategoryInput } from '../types/category';
-import { getCategoriesByUserDB, getCategoryByIdDB } from '../models/category';
+import {
+  getCategoriesByUserDB,
+  getCategoryByIdDB,
+} from '../repository/category';
 import {
   createCategoryService,
   deleteCategoryService,

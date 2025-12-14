@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { Application } from 'express';
 import { env } from '../configs/config';
-import { getCurrenciesDB } from '../models/currency';
+import { getCurrenciesDB } from '../repository/currency';
 import { prisma } from '../../prisma/client';
 
 export function preRoutesMiddleware(app: Application) {
