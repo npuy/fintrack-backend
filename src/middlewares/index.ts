@@ -11,7 +11,7 @@ export function preRoutesMiddleware(app: Application) {
 
   // set update currencies function
   const DAY_IN_MS = 1000 * 60 * 60 * 24;
-  const interval = setInterval(updateCurrenciesFromAPI, DAY_IN_MS);
+  setInterval(updateCurrenciesFromAPI, DAY_IN_MS);
 }
 
 async function updateCurrenciesFromAPI() {

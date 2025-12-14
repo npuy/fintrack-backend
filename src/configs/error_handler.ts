@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import {
   BadRequestError,
   ForbiddenAccessError,
@@ -6,12 +6,7 @@ import {
   ValueNotFoundError,
 } from './errors';
 
-export function errorHandler(
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export function errorHandler(err: Error, req: Request, res: Response) {
   switch (true) {
     case err instanceof ValueNotFoundError:
       res.status(404).send({ message: err.message });

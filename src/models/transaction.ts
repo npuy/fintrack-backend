@@ -167,7 +167,7 @@ export async function getTotalNumberTransactionsFullDB({
 }: {
   userId: string;
   filters: FilterTransactionsInput;
-}): Promise<Number> {
+}): Promise<number> {
   return await prisma.transaction.count({
     where: {
       date: {

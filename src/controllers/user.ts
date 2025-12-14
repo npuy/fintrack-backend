@@ -3,7 +3,7 @@ import { getUserIdFromRequest } from '../services/session';
 import { getCurrencyByIdDB } from '../models/currency';
 import { BadRequestError } from '../configs/errors';
 import { findUserByEmail, updateUserDB } from '../models/user';
-import { UpdateUserInput, UserPublicData } from '../types/user';
+import { UpdateUserInput } from '../types/user';
 import { getUserPublicData } from '../services/user';
 
 export async function updateUserData(

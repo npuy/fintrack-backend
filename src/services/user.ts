@@ -29,7 +29,7 @@ export function getUserPublicData(user: User): UserPublicData {
 
 export function getLastPayDay(payDay: number): Date {
   const today = new Date();
-  let lastPayDay = new Date(today.getFullYear(), today.getMonth(), payDay);
+  const lastPayDay = new Date(today.getFullYear(), today.getMonth(), payDay);
 
   if (today < lastPayDay) {
     lastPayDay.setMonth(lastPayDay.getMonth() - 1);
@@ -45,7 +45,7 @@ export function getLastPayDay(payDay: number): Date {
 
 export function getNextPayDay(payDay: number): Date {
   const today = new Date();
-  let nextPayDay = new Date(today.getFullYear(), today.getMonth(), payDay);
+  const nextPayDay = new Date(today.getFullYear(), today.getMonth(), payDay);
 
   if (today >= nextPayDay) {
     nextPayDay.setMonth(nextPayDay.getMonth() + 1);
