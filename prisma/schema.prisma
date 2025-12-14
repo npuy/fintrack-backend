@@ -60,7 +60,7 @@ model AccountCurrency {
 
 model Transaction {
   id          String          @id @default(uuid())
-  amount      Float
+  amount      Int
   description String
   date        DateTime
   typeId      Int

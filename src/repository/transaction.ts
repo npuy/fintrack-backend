@@ -1,4 +1,5 @@
 import { prisma } from '../../prisma/client';
+
 import {
   CreateTransactionInput,
   FilterTransactionsInput,
@@ -6,11 +7,19 @@ import {
   TransactionFull,
 } from '../types/transaction';
 
+import {
+  formatAmountForDisplay,
+  formatAmountForStorage,
+} from '../utils/amount';
+
 export async function createTransactionDB(
   createTransactionInput: CreateTransactionInput,
 ): Promise<Transaction> {
-  const { amount, description, date, accountId, categoryId, type } =
+  const { description, date, accountId, categoryId, type } =
     createTransactionInput;
+
+  const amount = formatAmountForStorage(createTransactionInput.amount);
+
   const transaction = await prisma.transaction.create({
     data: {
       amount,
@@ -24,7 +33,7 @@ export async function createTransactionDB(
 
   return {
     id: transaction.id,
-    amount: transaction.amount,
+    amount: formatAmountForDisplay(transaction.amount),
     description: transaction.description,
     date: transaction.date,
     accountId: transaction.accountId,
@@ -76,7 +85,7 @@ export async function getTransactionsDB({
 
   return transactions.map((transaction) => ({
     id: transaction.id,
-    amount: transaction.amount,
+    amount: formatAmountForDisplay(transaction.amount),
     description: transaction.description,
     date: transaction.date,
     accountId: transaction.accountId,
@@ -134,7 +143,7 @@ export async function getTransactionsFullDB({
 
   return transactions.map((transaction) => ({
     id: transaction.id,
-    amount: transaction.amount,
+    amount: formatAmountForDisplay(transaction.amount),
     description: transaction.description,
     date: transaction.date,
     accountId: transaction.accountId,
@@ -197,7 +206,7 @@ export async function getTransactionByIdDB(
   }
   return {
     id: transaction.id,
-    amount: transaction.amount,
+    amount: formatAmountForDisplay(transaction.amount),
     description: transaction.description,
     date: transaction.date,
     accountId: transaction.accountId,
@@ -211,8 +220,11 @@ export async function getTransactionByIdDB(
 export async function updateTransactionDB(
   updateTransactionInput: CreateTransactionInput,
 ): Promise<Transaction> {
-  const { id, amount, description, date, accountId, categoryId, type } =
+  const { id, description, date, accountId, categoryId, type } =
     updateTransactionInput;
+
+  const amount = formatAmountForStorage(updateTransactionInput.amount);
+
   if (!id) {
     throw new Error('Transaction ID is required');
   }
@@ -232,7 +244,7 @@ export async function updateTransactionDB(
 
   return {
     id: transaction.id,
-    amount: transaction.amount,
+    amount: formatAmountForDisplay(transaction.amount),
     description: transaction.description,
     date: transaction.date,
     accountId: transaction.accountId,
