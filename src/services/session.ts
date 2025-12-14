@@ -1,7 +1,9 @@
-import jwt from 'jsonwebtoken';
-import { CustomJwtPayload } from '../types/jwt';
 import { Request } from 'express';
+import jwt from 'jsonwebtoken';
+
 import { env } from '../configs/config';
+
+import { CustomJwtPayload } from '../types/jwt';
 
 export function getUserIdFromRequest(req: Request): string {
   const token = req.header('Authorization');

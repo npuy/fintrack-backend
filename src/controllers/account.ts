@@ -1,16 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateAccountInput } from '../types/account';
-import {
-  getAccountByIdDB,
-  getAccountsByUserDB,
-  getAccountsByUserWithBalanceDB,
-} from '../repository/account';
+
 import { getUserIdFromRequest } from '../services/session';
 import {
   createAccountService,
   deleteAccountService,
+  getAccountByIdService,
+  getAccountsByUserService,
+  getAccountsByUserWithBalanceService,
   updateAccountService,
-  validateAccountId,
 } from '../services/account';
 
 export async function createAccount(
@@ -21,13 +18,12 @@ export async function createAccount(
   const { name, currencyId } = req.body;
   const userId = getUserIdFromRequest(req);
 
-  const createAccountInput: CreateAccountInput = {
-    name,
-    currencyId,
-    userId,
-  };
   try {
-    const account = await createAccountService(createAccountInput);
+    const account = await createAccountService({
+      name,
+      currencyId,
+      userId,
+    });
     res.json(account);
   } catch (error) {
     next(error);
@@ -37,7 +33,7 @@ export async function createAccount(
 export async function getAccounts(req: Request, res: Response) {
   const userId = getUserIdFromRequest(req);
 
-  const accounts = await getAccountsByUserDB(userId);
+  const accounts = await getAccountsByUserService(userId);
 
   res.json(accounts);
 }
@@ -45,7 +41,7 @@ export async function getAccounts(req: Request, res: Response) {
 export async function getAccountsWithBalance(req: Request, res: Response) {
   const userId = getUserIdFromRequest(req);
 
-  const accountsWithBalance = await getAccountsByUserWithBalanceDB(userId);
+  const accountsWithBalance = await getAccountsByUserWithBalanceService(userId);
 
   res.json(accountsWithBalance);
 }
@@ -59,14 +55,11 @@ export async function getAccountById(
   const accountId = req.params.id;
 
   try {
-    await validateAccountId(accountId, userId);
+    const account = await getAccountByIdService(accountId, userId);
+    res.json(account);
   } catch (error) {
     next(error);
-    return;
   }
-
-  const account = await getAccountByIdDB(accountId);
-  res.json(account);
 }
 
 export async function updateAccount(
@@ -77,13 +70,6 @@ export async function updateAccount(
   const userId = getUserIdFromRequest(req);
   const accountId = req.params.id;
   const { name, currencyId } = req.body;
-
-  try {
-    await validateAccountId(accountId, userId);
-  } catch (error) {
-    next(error);
-    return;
-  }
 
   try {
     const updatedAccount = await updateAccountService(
@@ -107,14 +93,7 @@ export async function deleteAccount(
   const accountId = req.params.id;
 
   try {
-    await validateAccountId(accountId, userId);
-  } catch (error) {
-    next(error);
-    return;
-  }
-
-  try {
-    await deleteAccountService(accountId);
+    await deleteAccountService(accountId, userId);
     res.json({ message: 'Account deleted' });
   } catch (error) {
     next(error);

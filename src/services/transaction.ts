@@ -1,20 +1,39 @@
+import { ParsedQs } from 'qs';
+
 import { ForbiddenAccessError, ValueNotFoundError } from '../configs/errors';
-import { getAccountByIdDB } from '../repository/account';
-import {
-  createTransactionDB,
-  getTransactionByIdDB,
-  updateTransactionDB,
-} from '../repository/transaction';
+
 import {
   CreateTransactionInput,
   FilterTransactionsInput,
+  OrderByDirections,
+  OrderByFields,
   OrderByItem,
 } from '../types/transaction';
-import { ParsedQs } from 'qs';
+
+import { getAccountByIdDB } from '../repository/account';
+import {
+  createTransactionDB,
+  deleteTransactionDB,
+  getTotalNumberTransactionsFullDB,
+  getTransactionByIdDB,
+  getTransactionsDB,
+  getTransactionsFullDB,
+  updateTransactionDB,
+} from '../repository/transaction';
+import { getUserByIdDB } from '../repository/user';
+
+import { getLastPayDay, getNextPayDay } from './user';
+import { validateAccountId } from './account';
+import { validateCategoryId } from './category';
 
 export async function createTransactionService(
   createTransactionInput: CreateTransactionInput,
+  userId: string,
 ) {
+  const { accountId, categoryId } = createTransactionInput;
+  await validateAccountId(accountId, userId);
+  await validateCategoryId(categoryId, userId);
+
   const transaction = await createTransactionDB(createTransactionInput);
 
   return transaction;
@@ -22,10 +41,12 @@ export async function createTransactionService(
 
 export async function updateTransactionService(
   updateTransactionInput: CreateTransactionInput,
+  userId: string,
 ) {
-  if (!updateTransactionInput.id) {
-    throw new Error('Transaction ID is required');
-  }
+  const { id: transactionId, accountId, categoryId } = updateTransactionInput;
+  await validateAccountId(accountId, userId);
+  await validateCategoryId(categoryId, userId);
+  await validateTransactionId(transactionId!, userId);
 
   const updatedTransaction = await updateTransactionDB(updateTransactionInput);
 
@@ -72,10 +93,10 @@ export async function validateTransactionId(
   }
 }
 
-export function formatGetTransactionsFilters(
+export async function formatGetTransactionsFilters(
   query: ParsedQs,
-  defaultFilters: FilterTransactionsInput,
-): FilterTransactionsInput {
+  userId: string,
+): Promise<FilterTransactionsInput> {
   const {
     startDate,
     endDate,
@@ -86,6 +107,25 @@ export function formatGetTransactionsFilters(
     limit,
     offset,
   } = query;
+
+  const user = await getUserByIdDB(userId);
+  if (!user) {
+    throw new ValueNotFoundError('User not found');
+  }
+  const payDay = user.payDay;
+  const defaultFilters: FilterTransactionsInput = {
+    startDate: getLastPayDay(payDay),
+    endDate: getNextPayDay(payDay),
+    orderBy: [
+      {
+        field: OrderByFields.Date,
+        direction: OrderByDirections.Desc,
+      },
+    ],
+    limit: 20,
+    offset: 0,
+  };
+
   return {
     startDate: startDate
       ? new Date(startDate as string)
@@ -106,4 +146,45 @@ export function formatGetTransactionsFilters(
     limit: limit ? Number(limit) : defaultFilters.limit,
     offset: offset ? Number(offset) : defaultFilters.offset,
   };
+}
+
+export async function deleteTransactionService(
+  transactionId: string,
+  userId: string,
+): Promise<void> {
+  await validateTransactionId(transactionId, userId);
+
+  await deleteTransactionDB(transactionId);
+}
+
+export async function getTransactionsFullService(
+  userId: string,
+  filters: FilterTransactionsInput,
+) {
+  const transactions = await getTransactionsFullDB({ userId, filters });
+  const total = await getTotalNumberTransactionsFullDB({ userId, filters });
+
+  return { transactions, total };
+}
+
+export async function getTransactionsService(userId: string) {
+  return getTransactionsDB({ userId });
+}
+
+export async function getTransactionsByAccountService(
+  userId: string,
+  accountId: string,
+) {
+  await validateAccountId(accountId, userId);
+
+  return getTransactionsDB({ userId, accountId });
+}
+
+export async function getTransactionsByCategoryService(
+  userId: string,
+  categoryId: string,
+) {
+  await validateCategoryId(categoryId, userId);
+
+  return getTransactionsDB({ userId, categoryId });
 }

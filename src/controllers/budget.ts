@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
+
 import { getUserIdFromRequest } from '../services/session';
-import {
-  CreateBudgetGroupInput,
-  UpdateBudgetGroupInput,
-} from '../types/budget';
 import {
   createBudgetGroupService,
   deleteBudgetGroupService,
@@ -20,16 +17,14 @@ export async function createBudgetGroup(
   const userId = getUserIdFromRequest(req);
   const { name, limit, currencyId, categoriesId } = req.body;
 
-  const createBudgetGroupInput: CreateBudgetGroupInput = {
-    name,
-    limit,
-    currencyId,
-    userId,
-    categoriesId,
-  };
-
   try {
-    const budgetGroup = await createBudgetGroupService(createBudgetGroupInput);
+    const budgetGroup = await createBudgetGroupService({
+      name,
+      limit,
+      currencyId,
+      userId,
+      categoriesId,
+    });
     res.json(budgetGroup);
   } catch (error) {
     next(error);
@@ -76,17 +71,15 @@ export async function updateBudgetGroup(
   const budgetGroupId = req.params.id;
   const { name, limit, currencyId, categoriesId } = req.body;
 
-  const createBudgetGroupInput: UpdateBudgetGroupInput = {
-    id: budgetGroupId,
-    name,
-    limit,
-    currencyId,
-    userId,
-    categoriesId,
-  };
-
   try {
-    const budgetGroup = await updateBudgetGroupService(createBudgetGroupInput);
+    const budgetGroup = await updateBudgetGroupService({
+      id: budgetGroupId,
+      name,
+      limit,
+      currencyId,
+      userId,
+      categoriesId,
+    });
     res.json(budgetGroup);
   } catch (error) {
     next(error);

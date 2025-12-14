@@ -3,9 +3,17 @@ import {
   ForbiddenAccessError,
   ValueNotFoundError,
 } from '../configs/errors';
+
+import {
+  CreateCategoryInput,
+  Category,
+  CategoryWithBalance,
+} from '../types/category';
+
 import {
   createCategoryDB,
   deleteCategoryDB,
+  getCategoriesByUserDB,
   getCategoriesByUserWithBalanceDB,
   getCategoryByIdDB,
   getCategoryByUserIdAndName,
@@ -14,11 +22,7 @@ import {
 import { getCurrencyByIdDB } from '../repository/currency';
 import { getTransactionsDB } from '../repository/transaction';
 import { getUserByIdDB } from '../repository/user';
-import {
-  CreateCategoryInput,
-  Category,
-  CategoryWithBalance,
-} from '../types/category';
+
 import { getLastPayDay, getNextPayDay } from './user';
 
 export async function createCategoryService(
@@ -39,10 +43,15 @@ export async function updateCategoryService(
   name: string,
   userId: string,
 ): Promise<Category | null> {
+  // Validate category existence and ownership
+  await validateCategoryId(categoryId, userId);
+
+  // Check if another category with the same name exists for the user
   const categoryFound = await getCategoryByUserIdAndName(userId, name);
   if (categoryFound && categoryFound.id !== categoryId) {
     throw new BadRequestError('Category name already exists');
   }
+
   return await updateCategoryDB(categoryId, name);
 }
 
@@ -58,11 +67,19 @@ export async function validateCategoryId(categoryId: string, userId: string) {
   }
 }
 
-export async function deleteCategoryService(categoryId: string): Promise<void> {
+export async function deleteCategoryService(
+  categoryId: string,
+  userId: string,
+): Promise<void> {
+  // Validate category existence and ownership
+  await validateCategoryId(categoryId, userId);
+
+  // Check for associated transactions
   const transactions = await getTransactionsDB({ categoryId });
   if (transactions.length > 0) {
     throw new BadRequestError('Category has transactions');
   }
+
   return await deleteCategoryDB(categoryId);
 }
 
@@ -90,4 +107,26 @@ export async function getCategoriesByUserWithBalance(
     endDate: endDate ? endDate : nextPayDay,
     currency: currency,
   });
+}
+
+export async function getCategoriesByUserService(
+  userId: string,
+): Promise<Category[]> {
+  return await getCategoriesByUserDB(userId);
+}
+
+export async function getCategoryByIdService(
+  categoryId: string,
+  userId: string,
+): Promise<Category | null> {
+  const category = await getCategoryByIdDB(categoryId);
+
+  if (!category) {
+    throw new ValueNotFoundError('Category not found');
+  }
+
+  if (category.userId !== userId) {
+    throw new ForbiddenAccessError('Forbidden');
+  }
+  return category;
 }
