@@ -26,6 +26,8 @@ import { getLastPayDay, getNextPayDay } from './user';
 import { validateAccountId } from './account';
 import { validateCategoryId } from './category';
 
+import { formatDateToUTCMidnight } from '../utils/date';
+
 export async function createTransactionService(
   createTransactionInput: CreateTransactionInput,
   userId: string,
@@ -33,6 +35,10 @@ export async function createTransactionService(
   const { accountId, categoryId } = createTransactionInput;
   await validateAccountId(accountId, userId);
   await validateCategoryId(categoryId, userId);
+
+  createTransactionInput.date = formatDateToUTCMidnight(
+    createTransactionInput.date,
+  );
 
   const transaction = await createTransactionDB(createTransactionInput);
 
@@ -47,6 +53,10 @@ export async function updateTransactionService(
   await validateAccountId(accountId, userId);
   await validateCategoryId(categoryId, userId);
   await validateTransactionId(transactionId!, userId);
+
+  updateTransactionInput.date = formatDateToUTCMidnight(
+    updateTransactionInput.date,
+  );
 
   const updatedTransaction = await updateTransactionDB(updateTransactionInput);
 
