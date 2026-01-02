@@ -5,8 +5,6 @@ import {
   CreateCategoryInput,
 } from '../types/category';
 import { prisma } from '../../prisma/client';
-import { getUserByIdDB } from './user';
-import { getCurrencyByIdDB } from './currency';
 
 export async function createCategoryDB(
   category: CreateCategoryInput,

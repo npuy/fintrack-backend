@@ -13,7 +13,7 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
 
   try {
     jwt.verify(token, env.JWT_SECRET);
-  } catch (error) {
+  } catch {
     next(new UnauthorizedError('Access denied'));
     return;
   }

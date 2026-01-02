@@ -1,10 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
-import { createToken } from '../services/session';
-import { CustomJwtPayload } from '../types/jwt';
-import { CreateUserInput, UserPublicData } from '../types/user';
-import { createUserDB, findUserByEmail } from '../models/user';
+
 import { UnauthorizedError } from '../configs/errors';
-import { getUserPublicData, validateEmailAndPassword } from '../services/user';
+import { CustomJwtPayload } from '../types/jwt';
+
+import { createToken } from '../services/session';
+import {
+  createUserService,
+  getUserPublicData,
+  validateEmailAndPassword,
+} from '../services/user';
 
 export async function register(
   req: Request,
@@ -13,25 +17,16 @@ export async function register(
 ) {
   const { name, email, password } = req.body;
 
-  if (await findUserByEmail(email)) {
-    next(new UnauthorizedError('Email already exists'));
-    return;
+  try {
+    const user = await createUserService(name, email, password);
+
+    const token = createToken({ userId: user.id });
+    res.header('Authorization', token);
+
+    res.json(getUserPublicData(user));
+  } catch (error) {
+    next(error);
   }
-
-  const createUserInput: CreateUserInput = {
-    name,
-    email,
-    password,
-  };
-  const user = await createUserDB(createUserInput);
-
-  const payload: CustomJwtPayload = {
-    userId: user.id,
-  };
-  const token = createToken(payload);
-  res.header('Authorization', token);
-
-  res.json(getUserPublicData(user));
 }
 
 export async function login(req: Request, res: Response, next: NextFunction) {

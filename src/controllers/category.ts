@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
+
 import { getUserIdFromRequest } from '../services/session';
-import { CreateCategoryInput } from '../types/category';
-import { getCategoriesByUserDB, getCategoryByIdDB } from '../models/category';
 import {
   createCategoryService,
   deleteCategoryService,
+  getCategoriesByUserService,
   getCategoriesByUserWithBalance,
+  getCategoryByIdService,
   updateCategoryService,
-  validateCategoryId,
 } from '../services/category';
 
 export async function createCategory(
@@ -18,12 +18,11 @@ export async function createCategory(
   const { name } = req.body;
   const userId = getUserIdFromRequest(req);
 
-  const createCategoryInput: CreateCategoryInput = {
-    name,
-    userId,
-  };
   try {
-    const category = await createCategoryService(createCategoryInput);
+    const category = await createCategoryService({
+      name,
+      userId,
+    });
     res.json(category);
   } catch (error) {
     next(error);
@@ -33,7 +32,7 @@ export async function createCategory(
 export async function getCategories(req: Request, res: Response) {
   const userId = getUserIdFromRequest(req);
 
-  const categories = await getCategoriesByUserDB(userId);
+  const categories = await getCategoriesByUserService(userId);
 
   res.json(categories);
 }
@@ -51,21 +50,11 @@ export async function getCategoriesWithBalance(req: Request, res: Response) {
   res.json(categoriesWithBalance);
 }
 
-export async function getCategoryById(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export async function getCategoryById(req: Request, res: Response) {
   const userId = getUserIdFromRequest(req);
   const categoryId = req.params.id;
 
-  try {
-    await validateCategoryId(categoryId, userId);
-  } catch (error) {
-    next(error);
-  }
-
-  const category = await getCategoryByIdDB(categoryId);
+  const category = await getCategoryByIdService(categoryId, userId);
 
   res.json(category);
 }
@@ -78,12 +67,6 @@ export async function updateCategory(
   const userId = getUserIdFromRequest(req);
   const categoryId = req.params.id;
   const { name } = req.body;
-
-  try {
-    await validateCategoryId(categoryId, userId);
-  } catch (error) {
-    next(error);
-  }
 
   try {
     const updatedCategory = await updateCategoryService(
@@ -106,13 +89,7 @@ export async function deleteCategory(
   const categoryId = req.params.id;
 
   try {
-    await validateCategoryId(categoryId, userId);
-  } catch (error) {
-    next(error);
-  }
-
-  try {
-    await deleteCategoryService(categoryId);
+    await deleteCategoryService(categoryId, userId);
     res.json({ message: 'Category deleted' });
   } catch (error) {
     next(error);
