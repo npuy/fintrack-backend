@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-import { BadRequestError, UnauthorizedError } from '../configs/errors';
+import { BadRequestError } from '../configs/errors';
 
 import {
   CreateUserInput,
@@ -80,7 +80,7 @@ export async function createUserService(
   password: string,
 ): Promise<User> {
   if (await findUserByEmail(email)) {
-    throw new UnauthorizedError('Email already exists');
+    throw new BadRequestError('Email already exists');
   }
 
   const createUserInput: CreateUserInput = {
