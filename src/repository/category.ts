@@ -32,6 +32,9 @@ export async function getCategoriesByUserDB(
     where: {
       userId,
     },
+    orderBy: {
+      sortOrder: 'desc',
+    },
   });
   return categories.map((category) => ({
     id: category.id,
@@ -84,7 +87,9 @@ export async function getCategoriesByUserWithBalanceDB({
     WHERE
       c.userId = ${userId}
     GROUP BY
-      c.id;
+      c.id
+    ORDER BY 
+      c.sortOrder DESC;
   `;
   return categoriesWithBalance;
 }

@@ -38,6 +38,9 @@ export async function getAccountsByUserDB(userId: string): Promise<Account[]> {
     include: {
       currency: true,
     },
+    orderBy: {
+      sortOrder: 'desc',
+    },
   });
   return accounts.map((account) => ({
     id: account.id,
@@ -101,7 +104,9 @@ export async function getAccountsByUserWithBalanceDB(
     WHERE
       a.userId = ${userId}
     GROUP BY
-      a.id;
+      a.id
+    ORDER BY 
+      a.sortOrder DESC;
   `;
   return accountsWithBalance.map((account) => ({
     id: account.id,
