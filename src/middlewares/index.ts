@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { Application } from 'express';
 import { env } from '../configs/config';
-import { getCurrenciesDB } from '../models/currency';
+import { getCurrenciesDB } from '../repository/currency';
 import { prisma } from '../../prisma/client';
 
 export function preRoutesMiddleware(app: Application) {
@@ -11,7 +11,7 @@ export function preRoutesMiddleware(app: Application) {
 
   // set update currencies function
   const DAY_IN_MS = 1000 * 60 * 60 * 24;
-  const interval = setInterval(updateCurrenciesFromAPI, DAY_IN_MS);
+  setInterval(updateCurrenciesFromAPI, DAY_IN_MS);
 }
 
 async function updateCurrenciesFromAPI() {

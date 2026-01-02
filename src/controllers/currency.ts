@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { getCurrenciesDB, getCurrencyByIdDB } from '../models/currency';
+
 import { ValueNotFoundError } from '../configs/errors';
+
+import { getCurrenciesService, getCurrencyService } from '../services/currency';
 
 export async function getCurrencies(
   req: Request,
@@ -8,7 +10,7 @@ export async function getCurrencies(
   next: NextFunction,
 ) {
   try {
-    const currencies = await getCurrenciesDB();
+    const currencies = await getCurrenciesService();
     res.json(currencies);
   } catch (error) {
     next(error);
@@ -22,7 +24,7 @@ export async function getCurrency(
 ) {
   const { currencyId } = req.params;
   try {
-    const currency = await getCurrencyByIdDB(Number(currencyId));
+    const currency = await getCurrencyService(Number(currencyId));
     if (!currency) {
       next(new ValueNotFoundError('Currency: ' + currencyId));
       return;

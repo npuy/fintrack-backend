@@ -1,13 +1,5 @@
 import { BadRequestError, ValueNotFoundError } from '../configs/errors';
-import {
-  createBudgetGroupDB,
-  deleteBudgetGroupDB,
-  getBudgetGroupByIdDB,
-  getBudgetGroupByNameAndUserId,
-  getBudgetGroupsDB,
-  updateBudgetGroupDB,
-} from '../models/budget';
-import { getCurrenciesDB, getCurrencyByIdDB } from '../models/currency';
+
 import {
   BudgetGroup,
   BudgetGroupWithCategories,
@@ -15,8 +7,19 @@ import {
   CreateBudgetGroupInput,
   UpdateBudgetGroupInput,
 } from '../types/budget';
+
+import {
+  createBudgetGroupDB,
+  deleteBudgetGroupDB,
+  getBudgetGroupByIdDB,
+  getBudgetGroupByNameAndUserId,
+  getBudgetGroupsDB,
+  updateBudgetGroupDB,
+} from '../repository/budget';
+import { getCurrenciesDB, getCurrencyByIdDB } from '../repository/currency';
+import { getUserByIdDB } from '../repository/user';
+
 import { getCategoriesByUserWithBalance } from './category';
-import { getUserByIdDB } from '../models/user';
 
 export async function createBudgetGroupService(
   createBudgetGroupInput: CreateBudgetGroupInput,

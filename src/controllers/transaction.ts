@@ -1,30 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
+
 import { getUserIdFromRequest } from '../services/session';
 import {
   createTransactionService,
+  deleteTransactionService,
   formatGetTransactionsFilters,
   getTransactionByIdService,
+  getTransactionsByAccountService,
+  getTransactionsByCategoryService,
+  getTransactionsFullService,
+  getTransactionsService,
   updateTransactionService,
-  validateTransactionId,
 } from '../services/transaction';
-import {
-  CreateTransactionInput,
-  FilterTransactionsInput,
-  OrderByDirections,
-  OrderByFields,
-  TransactionType,
-} from '../types/transaction';
-import {
-  deleteTransactionDB,
-  getTotalNumberTransactionsFullDB,
-  getTransactionsDB,
-  getTransactionsFullDB,
-} from '../models/transaction';
-import { validateAccountId } from '../services/account';
-import { validateCategoryId } from '../services/category';
-import { getUserByIdDB } from '../models/user';
-import { ValueNotFoundError } from '../configs/errors';
-import { getLastPayDay, getNextPayDay } from '../services/user';
 
 export async function createTransaction(
   req: Request,
@@ -35,7 +22,7 @@ export async function createTransaction(
   const {
     amount,
     description,
-    date,
+    date: dateString,
     accountId,
     categoryId,
     type,
@@ -48,32 +35,20 @@ export async function createTransaction(
     type: number;
   } = req.body;
 
-  const dateObj = new Date(date);
+  const date = new Date(dateString);
 
   try {
-    await validateAccountId(accountId, userId);
-  } catch (error) {
-    next(error);
-    return;
-  }
-
-  try {
-    await validateCategoryId(categoryId, userId);
-  } catch (error) {
-    next(error);
-    return;
-  }
-
-  try {
-    const createTransactionInput: CreateTransactionInput = {
-      amount,
-      description,
-      date: dateObj,
-      accountId,
-      categoryId,
-      type: type as TransactionType,
-    };
-    const transaction = await createTransactionService(createTransactionInput);
+    const transaction = await createTransactionService(
+      {
+        amount,
+        description,
+        date,
+        accountId,
+        categoryId,
+        type,
+      },
+      userId,
+    );
     res.json(transaction);
   } catch (error) {
     next(error);
@@ -88,7 +63,7 @@ export async function getTransactions(
   const userId = getUserIdFromRequest(req);
 
   try {
-    const transactions = await getTransactionsDB({ userId });
+    const transactions = await getTransactionsService(userId);
     res.json(transactions);
   } catch (error) {
     next(error);
@@ -101,32 +76,14 @@ export async function getTransactionsFull(
   next: NextFunction,
 ) {
   const userId = getUserIdFromRequest(req);
-  const user = await getUserByIdDB(userId);
-  if (!user) {
-    next(new ValueNotFoundError('User not found'));
-    return;
-  }
-  const payDay = user.payDay;
-  const defaultFilters: FilterTransactionsInput = {
-    startDate: getLastPayDay(payDay),
-    endDate: getNextPayDay(payDay),
-    orderBy: [
-      {
-        field: OrderByFields.Date,
-        direction: OrderByDirections.Desc,
-      },
-    ],
-    limit: 20,
-    offset: 0,
-  };
-  const filters: FilterTransactionsInput = formatGetTransactionsFilters(
-    req.query,
-    defaultFilters,
-  );
 
   try {
-    const transactions = await getTransactionsFullDB({ userId, filters });
-    const total = await getTotalNumberTransactionsFullDB({ userId, filters });
+    const filters = await formatGetTransactionsFilters(req.query, userId);
+    const { transactions, total } = await getTransactionsFullService(
+      userId,
+      filters,
+    );
+
     res.json({ data: transactions, total });
   } catch (error) {
     next(error);
@@ -158,14 +115,10 @@ export async function getTransactionsByAccount(
   const accountId = req.params.accountId;
 
   try {
-    await validateAccountId(accountId, userId);
-  } catch (error) {
-    next(error);
-    return;
-  }
-
-  try {
-    const transactions = await getTransactionsDB({ userId, accountId });
+    const transactions = await getTransactionsByAccountService(
+      userId,
+      accountId,
+    );
     res.json(transactions);
   } catch (error) {
     next(error);
@@ -181,14 +134,10 @@ export async function getTransactionsByCategory(
   const categoryId = req.params.categoryId;
 
   try {
-    await validateCategoryId(categoryId, userId);
-  } catch (error) {
-    next(error);
-    return;
-  }
-
-  try {
-    const transactions = await getTransactionsDB({ userId, categoryId });
+    const transactions = await getTransactionsByCategoryService(
+      userId,
+      categoryId,
+    );
     res.json(transactions);
   } catch (error) {
     next(error);
@@ -205,7 +154,7 @@ export async function updateTransaction(
   const {
     amount,
     description,
-    date,
+    date: dateString,
     accountId,
     categoryId,
     type,
@@ -218,40 +167,21 @@ export async function updateTransaction(
     type: number;
   } = req.body;
 
-  const dateObj = new Date(date);
+  const date = new Date(dateString);
 
   try {
-    await validateTransactionId(transactionId, userId);
-  } catch (error) {
-    next(error);
-    return;
-  }
-
-  try {
-    await validateAccountId(accountId, userId);
-  } catch (error) {
-    next(error);
-    return;
-  }
-
-  try {
-    await validateCategoryId(categoryId, userId);
-  } catch (error) {
-    next(error);
-    return;
-  }
-
-  try {
-    const createTransactionInput: CreateTransactionInput = {
-      id: transactionId,
-      amount,
-      description,
-      date: dateObj,
-      accountId,
-      categoryId,
-      type: type as TransactionType,
-    };
-    const transaction = await updateTransactionService(createTransactionInput);
+    const transaction = await updateTransactionService(
+      {
+        id: transactionId,
+        amount,
+        description,
+        date,
+        accountId,
+        categoryId,
+        type,
+      },
+      userId,
+    );
     res.json(transaction);
   } catch (error) {
     next(error);
@@ -267,14 +197,7 @@ export async function deleteTransaction(
   const transactionId = req.params.transactionId;
 
   try {
-    await validateTransactionId(transactionId, userId);
-  } catch (error) {
-    next(error);
-    return;
-  }
-
-  try {
-    await deleteTransactionDB(transactionId);
+    await deleteTransactionService(transactionId, userId);
     res.json({ message: 'Transaction deleted successfully' });
   } catch (error) {
     next(error);
