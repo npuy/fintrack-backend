@@ -13,6 +13,7 @@ export async function createAccountDB(
       name: account.name,
       userId: account.userId,
       currencyId: account.currencyId,
+      enabled: account.enabled,
     },
     include: {
       currency: true,
@@ -26,6 +27,8 @@ export async function createAccountDB(
     userId: newAccount.userId,
     createdAt: newAccount.createdAt,
     updatedAt: newAccount.updatedAt,
+    enabled: newAccount.enabled,
+    sortOrder: newAccount.sortOrder,
   };
   return res;
 }
@@ -50,6 +53,8 @@ export async function getAccountsByUserDB(userId: string): Promise<Account[]> {
     userId: account.userId,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
+    enabled: account.enabled,
+    sortOrder: account.sortOrder,
   }));
 }
 
@@ -65,6 +70,8 @@ export async function getAccountsByUserWithBalanceDB(
       createdAt: Date;
       updatedAt: Date;
       balance: number;
+      enabled: boolean;
+      sortOrder: number;
       currencyName: string;
       currencySymbol: string;
       currencyMultiplier: number;
@@ -79,6 +86,8 @@ export async function getAccountsByUserWithBalanceDB(
       a.userId,
       a.createdAt,
       a.updatedAt,
+      a.enabled,
+      a.sortOrder,
       ac.name as currencyName,
       ac.symbol as currencySymbol,
       ac.multiplier as currencyMultiplier,
@@ -116,6 +125,8 @@ export async function getAccountsByUserWithBalanceDB(
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
     balance: account.balance,
+    enabled: account.enabled,
+    sortOrder: account.sortOrder,
     currency: {
       id: account.currencyId,
       name: account.currencyName,
@@ -149,6 +160,8 @@ export async function getAccountByIdDB(
     userId: account.userId,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
+    enabled: account.enabled,
+    sortOrder: account.sortOrder,
   };
 }
 
@@ -156,6 +169,7 @@ export async function updateAccountDB(
   accountId: string,
   name: string,
   currencyId: number,
+  enabled?: boolean,
 ): Promise<Account | null> {
   const account = await prisma.account.update({
     where: {
@@ -164,6 +178,7 @@ export async function updateAccountDB(
     data: {
       name,
       currencyId,
+      enabled,
     },
     include: {
       currency: true,
@@ -177,6 +192,8 @@ export async function updateAccountDB(
     userId: account.userId,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
+    enabled: account.enabled,
+    sortOrder: account.sortOrder,
   };
 }
 
@@ -212,5 +229,7 @@ export async function getAccountByUserIdAndName(
     userId: account.userId,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
+    enabled: account.enabled,
+    sortOrder: account.sortOrder,
   };
 }

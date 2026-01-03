@@ -15,7 +15,7 @@ export async function createAccount(
   res: Response,
   next: NextFunction,
 ) {
-  const { name, currencyId } = req.body;
+  const { name, currencyId, enabled } = req.body;
   const userId = getUserIdFromRequest(req);
 
   try {
@@ -23,6 +23,7 @@ export async function createAccount(
       name,
       currencyId,
       userId,
+      enabled,
     });
     res.json(account);
   } catch (error) {
@@ -69,7 +70,7 @@ export async function updateAccount(
 ) {
   const userId = getUserIdFromRequest(req);
   const accountId = req.params.id;
-  const { name, currencyId } = req.body;
+  const { name, currencyId, enabled } = req.body;
 
   try {
     const updatedAccount = await updateAccountService(
@@ -77,6 +78,7 @@ export async function updateAccount(
       name,
       currencyId,
       userId,
+      enabled,
     );
     res.json(updatedAccount);
   } catch (error) {

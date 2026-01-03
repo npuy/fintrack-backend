@@ -6,11 +6,14 @@ export interface Category {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  enabled: boolean;
+  sortOrder: number;
 }
 
 export interface CreateCategoryInput {
   name: string;
   userId: string;
+  enabled?: boolean;
 }
 
 export interface CategoryWithBalance extends Category {

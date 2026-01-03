@@ -35,6 +35,7 @@ export async function updateAccountService(
   name: string,
   currencyId: number,
   userId: string,
+  enabled?: boolean,
 ): Promise<Account | null> {
   // Validate account ownership
   await validateAccountId(accountId, userId);
@@ -45,7 +46,7 @@ export async function updateAccountService(
     throw new BadRequestError('Account name already exists');
   }
 
-  return await updateAccountDB(accountId, name, currencyId);
+  return await updateAccountDB(accountId, name, currencyId, enabled);
 }
 
 export async function validateAccountId(

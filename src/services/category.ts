@@ -42,6 +42,7 @@ export async function updateCategoryService(
   categoryId: string,
   name: string,
   userId: string,
+  enabled?: boolean,
 ): Promise<Category | null> {
   // Validate category existence and ownership
   await validateCategoryId(categoryId, userId);
@@ -52,7 +53,7 @@ export async function updateCategoryService(
     throw new BadRequestError('Category name already exists');
   }
 
-  return await updateCategoryDB(categoryId, name);
+  return await updateCategoryDB(categoryId, name, enabled);
 }
 
 export async function validateCategoryId(categoryId: string, userId: string) {

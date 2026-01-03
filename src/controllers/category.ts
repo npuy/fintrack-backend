@@ -15,12 +15,13 @@ export async function createCategory(
   res: Response,
   next: NextFunction,
 ) {
-  const { name } = req.body;
+  const { name, enabled } = req.body;
   const userId = getUserIdFromRequest(req);
 
   try {
     const category = await createCategoryService({
       name,
+      enabled,
       userId,
     });
     res.json(category);
@@ -66,13 +67,14 @@ export async function updateCategory(
 ) {
   const userId = getUserIdFromRequest(req);
   const categoryId = req.params.id;
-  const { name } = req.body;
+  const { name, enabled } = req.body;
 
   try {
     const updatedCategory = await updateCategoryService(
       categoryId,
       name,
       userId,
+      enabled,
     );
     res.json(updatedCategory);
   } catch (error) {

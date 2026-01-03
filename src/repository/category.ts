@@ -12,6 +12,7 @@ export async function createCategoryDB(
   const newCategory = await prisma.category.create({
     data: {
       name: category.name,
+      enabled: category.enabled,
       userId: category.userId,
     },
   });
@@ -21,6 +22,8 @@ export async function createCategoryDB(
     userId: newCategory.userId,
     createdAt: newCategory.createdAt,
     updatedAt: newCategory.updatedAt,
+    enabled: newCategory.enabled,
+    sortOrder: newCategory.sortOrder,
   };
   return res;
 }
@@ -42,6 +45,8 @@ export async function getCategoriesByUserDB(
     userId: category.userId,
     createdAt: category.createdAt,
     updatedAt: category.updatedAt,
+    enabled: category.enabled,
+    sortOrder: category.sortOrder,
   }));
 }
 
@@ -61,6 +66,8 @@ export async function getCategoriesByUserWithBalanceDB({
       c.userId,
       c.createdAt,
       c.updatedAt,
+      c.enabled,
+      c.sortOrder,
       CAST(COALESCE(SUM(
         CASE
           WHEN t.typeId = 1 THEN t.amount * (${currency.multiplier} / ac.multiplier)
@@ -111,12 +118,15 @@ export async function getCategoryByIdDB(
     userId: category.userId,
     createdAt: category.createdAt,
     updatedAt: category.updatedAt,
+    enabled: category.enabled,
+    sortOrder: category.sortOrder,
   };
 }
 
 export async function updateCategoryDB(
   categoryId: string,
   name: string,
+  enabled?: boolean,
 ): Promise<Category | null> {
   const category = await prisma.category.update({
     where: {
@@ -124,6 +134,7 @@ export async function updateCategoryDB(
     },
     data: {
       name,
+      enabled,
     },
   });
   return {
@@ -132,6 +143,8 @@ export async function updateCategoryDB(
     userId: category.userId,
     createdAt: category.createdAt,
     updatedAt: category.updatedAt,
+    enabled: category.enabled,
+    sortOrder: category.sortOrder,
   };
 }
 
