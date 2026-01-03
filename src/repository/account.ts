@@ -233,3 +233,22 @@ export async function getAccountByUserIdAndName(
     sortOrder: account.sortOrder,
   };
 }
+
+export async function reorderAccountsDB(
+  userId: string,
+  orderedAccountIds: string[],
+): Promise<void> {
+  const updates = orderedAccountIds.map((accountId, index) =>
+    prisma.account.updateMany({
+      where: {
+        id: accountId,
+        userId,
+      },
+      data: {
+        sortOrder: orderedAccountIds.length - index,
+      },
+    }),
+  );
+
+  await prisma.$transaction(updates);
+}

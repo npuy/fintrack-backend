@@ -13,6 +13,7 @@ import {
   getAccountByUserIdAndName,
   getAccountsByUserDB,
   getAccountsByUserWithBalanceDB,
+  reorderAccountsDB,
   updateAccountDB,
 } from '../repository/account';
 import { getTransactionsDB } from '../repository/transaction';
@@ -107,4 +108,35 @@ export async function getAccountsByUserWithBalanceService(
   userId: string,
 ): Promise<Account[]> {
   return await getAccountsByUserWithBalanceDB(userId);
+}
+
+export async function orderAccountsService(
+  userId: string,
+  orderedAccountIds: string[],
+): Promise<void> {
+  const accounts = await getAccountsByUserDB(userId);
+  const accountIds = accounts.map((account) => account.id);
+
+  // Validate that all provided IDs belong to the user
+  for (const id of orderedAccountIds) {
+    if (!accountIds.includes(id)) {
+      throw new ForbiddenAccessError(
+        `Account ID ${id} does not belong to the user`,
+      );
+    }
+  }
+
+  // Validate that no IDs are missing
+  const uniqueIds = new Set(orderedAccountIds);
+  if (uniqueIds.size !== accountIds.length) {
+    throw new BadRequestError('Some account IDs are missing or duplicated');
+  }
+
+  // Update the order of accounts
+  try {
+    await reorderAccountsDB(userId, orderedAccountIds);
+  } catch (error) {
+    console.error(error);
+    throw new Error('Failed to reorder accounts');
+  }
 }

@@ -11,3 +11,7 @@ export const updateAccountBodySchema = z.object({
   currencyId: z.number(),
   enabled: z.boolean().optional(),
 });
+
+export const orderAccountsBodySchema = z.object({
+  orderedAccountIds: z.array(z.string()),
+});

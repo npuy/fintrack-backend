@@ -7,6 +7,7 @@ import {
   getAccountByIdService,
   getAccountsByUserService,
   getAccountsByUserWithBalanceService,
+  orderAccountsService,
   updateAccountService,
 } from '../services/account';
 
@@ -97,6 +98,22 @@ export async function deleteAccount(
   try {
     await deleteAccountService(accountId, userId);
     res.json({ message: 'Account deleted' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function orderAccounts(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const userId = getUserIdFromRequest(req);
+  const { orderedAccountIds } = req.body;
+
+  try {
+    await orderAccountsService(userId, orderedAccountIds);
+    res.json({ message: 'Accounts ordered successfully' });
   } catch (error) {
     next(error);
   }
