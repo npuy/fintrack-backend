@@ -7,6 +7,7 @@ import {
   getCategoriesByUserService,
   getCategoriesByUserWithBalance,
   getCategoryByIdService,
+  orderCategoriesService,
   updateCategoryService,
 } from '../services/category';
 
@@ -93,6 +94,22 @@ export async function deleteCategory(
   try {
     await deleteCategoryService(categoryId, userId);
     res.json({ message: 'Category deleted' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function orderCategories(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const userId = getUserIdFromRequest(req);
+  const { orderedCategoryIds } = req.body;
+
+  try {
+    await orderCategoriesService(userId, orderedCategoryIds);
+    res.json({ message: 'Categories ordered successfully' });
   } catch (error) {
     next(error);
   }

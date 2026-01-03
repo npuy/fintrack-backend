@@ -174,3 +174,22 @@ export async function getCategoryByUserIdAndName(userId: string, name: string) {
     updatedAt: category.updatedAt,
   };
 }
+
+export async function orderCategoriesDB(
+  userId: string,
+  orderedCategoryIds: string[],
+): Promise<void> {
+  const updates = orderedCategoryIds.map((categoryId, index) => {
+    return prisma.category.updateMany({
+      where: {
+        id: categoryId,
+        userId,
+      },
+      data: {
+        sortOrder: orderedCategoryIds.length - index,
+      },
+    });
+  });
+
+  await prisma.$transaction(updates);
+}

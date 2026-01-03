@@ -136,7 +136,7 @@ export async function orderAccountsService(
   try {
     await reorderAccountsDB(userId, orderedAccountIds);
   } catch (error) {
-    console.error(error);
+    console.error('Error ordering accounts: ', error);
     throw new Error('Failed to reorder accounts');
   }
 }
