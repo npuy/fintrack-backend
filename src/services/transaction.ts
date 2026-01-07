@@ -131,6 +131,10 @@ export async function formatGetTransactionsFilters(
         field: OrderByFields.Date,
         direction: OrderByDirections.Desc,
       },
+      {
+        field: OrderByFields.CreatedAt,
+        direction: OrderByDirections.Desc,
+      },
     ],
     limit: 20,
     offset: 0,
