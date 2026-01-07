@@ -42,6 +42,7 @@ export enum OrderByDirections {
 export enum OrderByFields {
   Date = 'date',
   Amount = 'amount',
+  CreatedAt = 'createdAt',
 }
 
 export interface CreateTransactionInput {
