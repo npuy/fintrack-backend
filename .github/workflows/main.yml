@@ -1,6 +1,5 @@
 name: Deploy to Server
 
-# Trigger the workflow when a merge occurs into main
 on:
   push:
     branches:
@@ -9,6 +8,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
+    env:
+      SSH_HOST: ssh.nicolaspereira.me
+      SSH_USER: deployer
+      SSH_PATH: /home/deployer/fintrack-backend
 
     steps:
       # 1️⃣ Checkout the repository on the runner
@@ -19,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20 # Adjust to your Node.js version
+          node-version: 20
 
       # 3️⃣ Install dependencies and build the project
       - name: Install dependencies
@@ -28,28 +32,48 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 4️⃣ Setup SSH with private key stored in GitHub secrets
+      # 4️⃣ Install cloudflared
+      - name: Install cloudflared
+        run: |
+          curl -fsSL https://pkg.cloudflare.com/cloudflared-linux-amd64.deb -o cloudflared.deb
+          sudo dpkg -i cloudflared.deb
+
+      # 5️⃣ SSH Agent
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 5️⃣ Add the server to known_hosts for secure SSH connection
-      - name: Add server to known_hosts
+      # 6️⃣ Configure SSH via Cloudflare Zero Trust
+      - name: Configure SSH via Cloudflare Access
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H 174.138.110.54 >> ~/.ssh/known_hosts
+          chmod 700 ~/.ssh
 
-      # 6️⃣ Sync the build and necessary files to the server
+          cat << 'EOF' > ~/.ssh/config
+          Host ssh.nicolaspereira.me
+            User deployer
+            ProxyCommand cloudflared access ssh \
+              --hostname %h \
+              --id $CF_ACCESS_CLIENT_ID \
+              --secret $CF_ACCESS_CLIENT_SECRET
+          EOF
+
+          chmod 600 ~/.ssh/config
+
+      # 7️⃣ Sync the build and necessary files to the server
       - name: Sync build to server
         run: |
-          rsync -avz --delete ./dist/ deployer@174.138.110.54:/home/deployer/fintrack-backend/dist/
-          rsync -avz --delete package.json package-lock.json deployer@174.138.110.54:/home/deployer/fintrack-backend/
+          rsync -avz --delete ./dist/ ssh.nicolaspereira.me:$SSH_PATH/dist/
+          rsync -avz package.json package-lock.json ssh.nicolaspereira.me:$SSH_PATH/
 
-      # 7️⃣ Restart the app using PM2
+      # 8️⃣ Restart the app using PM2
       - name: Restart app with PM2
         run: |
-          ssh deployer@174.138.110.54 << 'EOF'
+          ssh ssh.nicolaspereira.me << 'EOF'
             cd /home/deployer/fintrack-backend
             pm2 reload ft-back
           EOF
