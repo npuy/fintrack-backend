@@ -8,4 +8,4 @@ services:
     env_file: ./.env
     volumes:
       - ./.env:/app/.env:ro
-      - ./prisma/dev.db:/app/prisma/dev.db
+      - ./prisma/data:/app/prisma/data/dev.db
