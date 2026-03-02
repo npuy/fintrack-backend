@@ -8,8 +8,4 @@ services:
     env_file: ./.env
     volumes:
       - ./.env:/app/.env:ro
-      - fintrack-db:/data
-
-volumes:
-  fintrack-db:
-    name: fintrack-db
+      - ./data:/data
