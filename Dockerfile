@@ -6,7 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build && npx prisma generate
+RUN npx prisma generate && npm run build
 
 # ---- Runtime stage ----
 FROM node:20-alpine AS runner
