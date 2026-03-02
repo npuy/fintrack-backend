@@ -1,0 +1,15 @@
+services:
+  backend:
+    build: .
+    restart: unless-stopped
+    network_mode: host
+    # env_file sets container-level env vars so the process sees them at startup.
+    # The volume mount makes the same file available for process.loadEnvFile().
+    env_file: ./.env
+    volumes:
+      - ./.env:/app/.env:ro
+      - fintrack-db:/data
+
+volumes:
+  fintrack-db:
+    name: fintrack-db

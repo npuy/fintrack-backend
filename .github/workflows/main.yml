@@ -15,24 +15,9 @@ jobs:
       SSH_PATH: /home/deployer/fintrack-backend
 
     steps:
-      # 1️⃣ Checkout the repository on the runner
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node.js for building the project
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      # 3️⃣ Install dependencies and build the project
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build project
-        run: npm run build
-
-      # 4️⃣ Install cloudflared
       - name: Install cloudflared
         run: |
           curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
@@ -40,13 +25,11 @@ jobs:
           chmod +x cloudflared
           sudo mv cloudflared /usr/local/bin/cloudflared
 
-      # 5️⃣ SSH Agent
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 6️⃣ Configure SSH via Cloudflare Tunnel
       - name: Configure SSH via Cloudflare Tunnel
         run: |
           mkdir -p ~/.ssh
@@ -61,16 +44,18 @@ jobs:
 
           chmod 600 ~/.ssh/config
 
-      # 7️⃣ Sync the build and necessary files to the server
-      - name: Sync build to server
+      - name: Sync source to server
         run: |
-          rsync -avz --delete ./dist/ ssh.nicolaspereira.me:$SSH_PATH/dist/
-          rsync -avz package.json package-lock.json ssh.nicolaspereira.me:$SSH_PATH/
+          rsync -avz --delete \
+            --exclude='node_modules' \
+            --exclude='dist' \
+            --exclude='.git' \
+            --exclude='.env' \
+            ./ ssh.nicolaspereira.me:$SSH_PATH/
 
-      # 8️⃣ Restart the app using PM2
-      - name: Restart app with PM2
+      - name: Deploy with Docker Compose
         run: |
           ssh ssh.nicolaspereira.me << 'EOF'
             cd /home/deployer/fintrack-backend
-            pm2 reload ft-back
+            docker compose up --build -d
           EOF
