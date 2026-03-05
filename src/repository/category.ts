@@ -5,6 +5,7 @@ import {
   CreateCategoryInput,
 } from '../types/category';
 import { prisma } from '../../prisma/client';
+import { formatAmountForDisplay } from '../utils/amount';
 
 export async function createCategoryDB(
   category: CreateCategoryInput,
@@ -98,7 +99,14 @@ export async function getCategoriesByUserWithBalanceDB({
     ORDER BY 
       c.sortOrder DESC;
   `;
-  return categoriesWithBalance;
+  return categoriesWithBalance.map((category) => ({
+    id: category.id,
+    name: category.name,
+    userId: category.userId,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+    balance: formatAmountForDisplay(category.balance),
+  }));
 }
 
 export async function getCategoryByIdDB(

@@ -4,6 +4,7 @@ import {
   CreateAccountInput,
 } from '../types/account';
 import { prisma } from '../../prisma/client';
+import { formatAmountForDisplay } from '../utils/amount';
 
 export async function createAccountDB(
   account: CreateAccountInput,
@@ -124,7 +125,7 @@ export async function getAccountsByUserWithBalanceDB(
     userId: account.userId,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
-    balance: account.balance,
+    balance: formatAmountForDisplay(account.balance),
     enabled: account.enabled,
     sortOrder: account.sortOrder,
     currency: {

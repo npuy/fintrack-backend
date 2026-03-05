@@ -1,6 +1,5 @@
 name: Deploy to Server
 
-# Trigger the workflow when a merge occurs into main
 on:
   push:
     branches:
@@ -10,46 +9,54 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      SSH_HOST: ssh.nicolaspereira.me
+      SSH_USER: deployer
+      SSH_PATH: /home/deployer/fintrack-backend
+
     steps:
-      # 1️⃣ Checkout the repository on the runner
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node.js for building the project
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20 # Adjust to your Node.js version
+      - name: Install cloudflared
+        run: |
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
+            -o cloudflared
+          chmod +x cloudflared
+          sudo mv cloudflared /usr/local/bin/cloudflared
 
-      # 3️⃣ Install dependencies and build the project
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build project
-        run: npm run build
-
-      # 4️⃣ Setup SSH with private key stored in GitHub secrets
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 5️⃣ Add the server to known_hosts for secure SSH connection
-      - name: Add server to known_hosts
+      - name: Configure SSH via Cloudflare Tunnel
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H 174.138.110.54 >> ~/.ssh/known_hosts
+          chmod 700 ~/.ssh
 
-      # 6️⃣ Sync the build and necessary files to the server
-      - name: Sync build to server
-        run: |
-          rsync -avz --delete ./dist/ deployer@174.138.110.54:/home/deployer/fintrack-backend/dist/
-          rsync -avz --delete package.json package-lock.json deployer@174.138.110.54:/home/deployer/fintrack-backend/
+          cat << 'EOF' > ~/.ssh/config
+          Host ssh.nicolaspereira.me
+            User deployer
+            ProxyCommand cloudflared access ssh --hostname %h
+            StrictHostKeyChecking no
+          EOF
 
-      # 7️⃣ Restart the app using PM2
-      - name: Restart app with PM2
+          chmod 600 ~/.ssh/config
+
+      - name: Sync source to server
         run: |
-          ssh deployer@174.138.110.54 << 'EOF'
+          rsync -avz --delete \
+            --exclude='node_modules' \
+            --exclude='dist' \
+            --exclude='.git' \
+            --exclude='.env' \
+            --exclude='prisma/data' \
+            ./ ssh.nicolaspereira.me:$SSH_PATH/
+
+      - name: Deploy with Docker Compose
+        run: |
+          ssh ssh.nicolaspereira.me << 'EOF'
             cd /home/deployer/fintrack-backend
-            pm2 reload ft-back
+            docker compose up --build -d
           EOF
