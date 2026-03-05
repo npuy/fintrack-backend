@@ -15,12 +15,15 @@ export interface Account {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  enabled: boolean;
+  sortOrder: number;
 }
 
 export interface CreateAccountInput {
   name: string;
   currencyId: number;
   userId: string;
+  enabled?: boolean;
 }
 
 export interface AccountWithBalance extends Account {

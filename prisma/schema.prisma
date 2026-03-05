@@ -39,6 +39,8 @@ model Account {
   currency     AccountCurrency @relation(fields: [currencyId], references: [id])
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
+  enabled      Boolean         @default(true)
+  sortOrder    Int             @default(0)
 
   @@unique([name, userId])
 }
@@ -93,6 +95,8 @@ model Category {
   budgetGroups BudgetGroup[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  enabled      Boolean       @default(true)
+  sortOrder    Int           @default(0)
 
   @@unique([name, userId])
 }
