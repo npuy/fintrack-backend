@@ -17,6 +17,7 @@ import {
   getCategoriesByUserWithBalanceDB,
   getCategoryByIdDB,
   getCategoryByUserIdAndName,
+  orderCategoriesDB,
   updateCategoryDB,
 } from '../repository/category';
 import { getCurrencyByIdDB } from '../repository/currency';
@@ -42,6 +43,7 @@ export async function updateCategoryService(
   categoryId: string,
   name: string,
   userId: string,
+  enabled?: boolean,
 ): Promise<Category | null> {
   // Validate category existence and ownership
   await validateCategoryId(categoryId, userId);
@@ -52,7 +54,7 @@ export async function updateCategoryService(
     throw new BadRequestError('Category name already exists');
   }
 
-  return await updateCategoryDB(categoryId, name);
+  return await updateCategoryDB(categoryId, name, enabled);
 }
 
 export async function validateCategoryId(categoryId: string, userId: string) {
@@ -129,4 +131,35 @@ export async function getCategoryByIdService(
     throw new ForbiddenAccessError('Forbidden');
   }
   return category;
+}
+
+export async function orderCategoriesService(
+  userId: string,
+  orderedCategoryIds: string[],
+): Promise<void> {
+  const categories = await getCategoriesByUserDB(userId);
+  const categoryIds = categories.map((category) => category.id);
+
+  // Validate that all provided IDs exist and belong to the user
+  for (const categoryId of orderedCategoryIds) {
+    if (!categoryIds.includes(categoryId)) {
+      throw new ForbiddenAccessError(
+        `Category ID ${categoryId} is invalid or does not belong to the user`,
+      );
+    }
+  }
+
+  // Validate that no IDs are missing
+  const uniqueIds = new Set(orderedCategoryIds);
+  if (uniqueIds.size !== categoryIds.length) {
+    throw new BadRequestError('Some account IDs are missing or duplicated');
+  }
+
+  // Update the order of categories
+  try {
+    await orderCategoriesDB(userId, orderedCategoryIds);
+  } catch (error) {
+    console.error('Error ordering categories: ', error);
+    throw new Error('Failed to order categories');
+  }
 }

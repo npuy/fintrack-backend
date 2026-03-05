@@ -7,6 +7,7 @@ import {
   getCategoriesByUserService,
   getCategoriesByUserWithBalance,
   getCategoryByIdService,
+  orderCategoriesService,
   updateCategoryService,
 } from '../services/category';
 
@@ -15,12 +16,13 @@ export async function createCategory(
   res: Response,
   next: NextFunction,
 ) {
-  const { name } = req.body;
+  const { name, enabled } = req.body;
   const userId = getUserIdFromRequest(req);
 
   try {
     const category = await createCategoryService({
       name,
+      enabled,
       userId,
     });
     res.json(category);
@@ -66,13 +68,14 @@ export async function updateCategory(
 ) {
   const userId = getUserIdFromRequest(req);
   const categoryId = req.params.id;
-  const { name } = req.body;
+  const { name, enabled } = req.body;
 
   try {
     const updatedCategory = await updateCategoryService(
       categoryId,
       name,
       userId,
+      enabled,
     );
     res.json(updatedCategory);
   } catch (error) {
@@ -91,6 +94,22 @@ export async function deleteCategory(
   try {
     await deleteCategoryService(categoryId, userId);
     res.json({ message: 'Category deleted' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function orderCategories(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const userId = getUserIdFromRequest(req);
+  const { orderedCategoryIds } = req.body;
+
+  try {
+    await orderCategoriesService(userId, orderedCategoryIds);
+    res.json({ message: 'Categories ordered successfully' });
   } catch (error) {
     next(error);
   }

@@ -159,6 +159,8 @@ export async function getTransactionsFullDB({
       userId: transaction.account.userId,
       createdAt: transaction.account.createdAt,
       updatedAt: transaction.account.updatedAt,
+      enabled: transaction.account.enabled,
+      sortOrder: transaction.account.sortOrder,
     },
     category: {
       id: transaction.category.id,
@@ -166,6 +168,8 @@ export async function getTransactionsFullDB({
       userId: transaction.category.userId,
       createdAt: transaction.category.createdAt,
       updatedAt: transaction.category.updatedAt,
+      enabled: transaction.category.enabled,
+      sortOrder: transaction.category.sortOrder,
     },
   }));
 }
