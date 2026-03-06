@@ -27,4 +27,4 @@ COPY --from=builder /app/dist ./dist
 # Migration files required by prisma migrate deploy
 COPY --from=builder /app/prisma ./prisma
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/index.js"]
+CMD ["sh", "-c", "node dist/src/index.js"]
