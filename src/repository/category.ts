@@ -103,6 +103,8 @@ export async function getCategoriesByUserWithBalanceDB({
     id: category.id,
     name: category.name,
     userId: category.userId,
+    enabled: category.enabled,
+    sortOrder: category.sortOrder,
     createdAt: category.createdAt,
     updatedAt: category.updatedAt,
     balance: formatAmountForDisplay(category.balance),
