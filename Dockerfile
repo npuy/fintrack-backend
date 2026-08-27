@@ -14,7 +14,9 @@ RUN npx prisma generate && npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-RUN apk add --no-cache openssl
+# tzdata is required for the TZ env var to resolve to a real zone.
+# Without it Alpine silently falls back to UTC.
+RUN apk add --no-cache openssl tzdata
 
 # Install production deps, then add the prisma CLI (devDep) needed for migrate deploy.
 COPY package.json package-lock.json ./
