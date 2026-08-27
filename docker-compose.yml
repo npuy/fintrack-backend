@@ -6,6 +6,11 @@ services:
     # env_file sets container-level env vars so the process sees them at startup.
     # The volume mount makes the same file available for process.loadEnvFile().
     env_file: ./.env
+    # Payday periods are derived from the process's local time (src/services/user.ts).
+    # Left in UTC, the period rolls over at 21:00 local time for a GMT-3 user.
+    # Override by setting TZ in ./.env.
+    environment:
+      - TZ=${TZ:-America/Montevideo}
     volumes:
       - ./.env:/app/.env:ro
       - ./prisma/data:/app/prisma/data
